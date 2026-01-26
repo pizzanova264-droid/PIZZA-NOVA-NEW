@@ -1,4 +1,5 @@
 import chocolateCake from '@/assets/chocolate-cake.png';
+import { AnimatedSection } from './AnimatedSection';
 
 export function AboutSection() {
   return (
@@ -6,21 +7,21 @@ export function AboutSection() {
       <div className="container-main">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Image */}
-          <div className="relative">
+          <AnimatedSection className="relative">
             <img 
               src={chocolateCake}
               alt="Pizza Nova Signature Dessert"
               className="w-full rounded-2xl shadow-elevated"
             />
             <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gold/20 rounded-full blur-3xl" />
-          </div>
+          </AnimatedSection>
 
           {/* Content */}
-          <div className="space-y-6">
+          <AnimatedSection delay={0.2} className="space-y-6">
             <div>
               <p className="text-accent font-medium mb-2">Our Story</p>
               <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-                A Legacy of Pure Flavors
+                A Legacy of Authentic Flavours
               </h2>
             </div>
             
@@ -54,7 +55,7 @@ export function AboutSection() {
                 <div className="text-sm text-muted-foreground">Vegan</div>
               </div>
             </div>
-          </div>
+          </AnimatedSection>
         </div>
       </div>
     </section>

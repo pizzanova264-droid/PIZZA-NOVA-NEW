@@ -1,3 +1,6 @@
+import { useCart } from '@/hooks/useCart';
+import { motion } from 'framer-motion';
+
 interface MenuCardProps {
   name: string;
   description: string;
@@ -7,8 +10,23 @@ interface MenuCardProps {
 }
 
 export function MenuCard({ name, description, price, image, badge }: MenuCardProps) {
+  const { addToCart } = useCart();
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: name.toLowerCase().replace(/\s+/g, '-'),
+      name,
+      price,
+      image,
+    });
+  };
+
   return (
-    <div className="card-menu group">
+    <motion.div 
+      className="card-menu group"
+      whileHover={{ y: -8 }}
+      transition={{ duration: 0.3 }}
+    >
       <div className="relative aspect-square overflow-hidden">
         <img 
           src={image} 
@@ -26,11 +44,15 @@ export function MenuCard({ name, description, price, image, badge }: MenuCardPro
         <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
         <div className="flex items-center justify-between pt-2">
           <span className="price-tag">₹{price}</span>
-          <button className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors">
+          <motion.button 
+            onClick={handleAddToCart}
+            whileTap={{ scale: 0.95 }}
+            className="px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
+          >
             Add to Cart
-          </button>
+          </motion.button>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { WhyChooseUs } from '@/components/WhyChooseUs';
@@ -9,8 +10,16 @@ import { AboutSection } from '@/components/AboutSection';
 import { ReviewsSection } from '@/components/ReviewsSection';
 import { DeliverySection } from '@/components/DeliverySection';
 import { Footer } from '@/components/Footer';
+import { VoiceSearch } from '@/components/VoiceSearch';
 
 const Index = () => {
+  const handleVoiceSearch = (query: string) => {
+    const menuSection = document.getElementById('menu');
+    if (menuSection) {
+      menuSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -26,6 +35,7 @@ const Index = () => {
         <DeliverySection />
       </main>
       <Footer />
+      <VoiceSearch onSearch={handleVoiceSearch} />
     </div>
   );
 };

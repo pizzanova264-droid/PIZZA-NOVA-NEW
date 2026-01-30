@@ -1,9 +1,22 @@
 import { X, Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
+import { useAuth } from '@/hooks/useAuth';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, totalPrice, clearCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    if (user) {
+      navigate('/checkout');
+    } else {
+      navigate('/auth');
+    }
+  };
 
   if (!isCartOpen) return null;
 
@@ -104,8 +117,11 @@ export function CartDrawer() {
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="text-xl font-bold text-primary">₹{totalPrice}</span>
                 </div>
-                <button className="w-full btn-hero-primary text-center">
-                  Proceed to Checkout
+                <button 
+                  onClick={handleCheckout}
+                  className="w-full btn-hero-primary text-center"
+                >
+                  {user ? 'Proceed to Checkout' : 'Login to Checkout'}
                 </button>
                 <button
                   onClick={clearCart}

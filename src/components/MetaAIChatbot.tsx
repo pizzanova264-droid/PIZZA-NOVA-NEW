@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
   id: string;
@@ -42,25 +43,36 @@ export function MetaAIChatbot() {
     setInput('');
     setIsLoading(true);
 
-    // Simulate AI response (in production, this would call the edge function)
-    setTimeout(() => {
-      const responses = [
-        "I'd recommend our Spicy Paneer Tikka Pizza - it's our bestseller! 🌶️ Would you like to know more about it?",
-        "Our menu features 100% vegan options. The Vegan Supreme Pizza is loaded with fresh vegetables and plant-based cheese!",
-        "For dessert, try our Belgian Chocolate Waffle or the famous Nutella Bliss - they're customer favorites! 🧇",
-        "We offer fast delivery! Your order typically arrives in 30-45 minutes. Would you like to place an order?",
-        "Our Truffle Pizza is a premium choice - it features truffle oil, arugula, and vegan parmesan. Perfect for special occasions!"
-      ];
+    try {
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        }
+      });
+
+      if (error) throw error;
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: responses[Math.floor(Math.random() * responses.length)]
+        content: data.message || data.error || "I'm here to help! What would you like to know?"
       };
 
       setMessages(prev => [...prev, aiMessage]);
-      setIsLoading(false);
-    }, 1500);
+    } catch (error) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: "Sorry, I'm having trouble connecting right now. Please try again in a moment! 🍕"
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+
+    setIsLoading(false);
   };
 
   return (
@@ -139,7 +151,7 @@ export function MetaAIChatbot() {
                         ? 'bg-primary text-primary-foreground rounded-br-md'
                         : 'bg-muted text-foreground rounded-bl-md'
                     }`}>
-                      <p className="text-sm">{message.content}</p>
+                      <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                     </div>
                   </div>
                 ))}

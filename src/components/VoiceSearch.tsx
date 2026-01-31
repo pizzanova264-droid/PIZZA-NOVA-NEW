@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Mic, MicOff, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from '@/hooks/use-toast';
 
 interface VoiceSearchProps {
   onSearch: (query: string) => void;
@@ -10,48 +11,106 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const [isSupported, setIsSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
   useEffect(() => {
-    setIsSupported('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+    // Check for speech recognition support across browsers
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || 
+                              (window as any).SpeechRecognition ||
+                              (window as any).mozSpeechRecognition ||
+                              (window as any).msSpeechRecognition;
+    
+    setIsSupported(!!SpeechRecognition);
   }, []);
 
   const startListening = () => {
-    if (!isSupported) return;
+    const SpeechRecognition = (window as any).webkitSpeechRecognition || 
+                              (window as any).SpeechRecognition ||
+                              (window as any).mozSpeechRecognition ||
+                              (window as any).msSpeechRecognition;
 
-    const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-    const recognition = new SpeechRecognition();
+    if (!SpeechRecognition) {
+      toast({
+        title: 'Voice Search Not Supported',
+        description: 'Your browser does not support voice search. Please try Chrome, Edge, or Safari.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'en-IN';
+    try {
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
 
-    recognition.onstart = () => {
-      setIsListening(true);
-      setTranscript('');
-    };
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-IN';
 
-    recognition.onresult = (event: any) => {
-      const current = event.resultIndex;
-      const result = event.results[current][0].transcript;
-      setTranscript(result);
-    };
+      recognition.onstart = () => {
+        setIsListening(true);
+        setTranscript('');
+      };
 
-    recognition.onend = () => {
-      setIsListening(false);
-      if (transcript) {
-        onSearch(transcript);
-      }
-    };
+      recognition.onresult = (event: any) => {
+        const current = event.resultIndex;
+        const result = event.results[current][0].transcript;
+        setTranscript(result);
+      };
 
-    recognition.onerror = () => {
-      setIsListening(false);
-    };
+      recognition.onend = () => {
+        setIsListening(false);
+        if (transcript) {
+          onSearch(transcript);
+          toast({
+            title: 'Searching for...',
+            description: `"${transcript}"`,
+          });
+        }
+      };
 
-    recognition.start();
+      recognition.onerror = (event: any) => {
+        setIsListening(false);
+        console.error('Speech recognition error:', event.error);
+        
+        if (event.error === 'not-allowed') {
+          toast({
+            title: 'Microphone Access Denied',
+            description: 'Please allow microphone access in your browser settings to use voice search.',
+            variant: 'destructive'
+          });
+        } else if (event.error === 'no-speech') {
+          toast({
+            title: 'No Speech Detected',
+            description: 'Please try speaking again.',
+          });
+        } else {
+          toast({
+            title: 'Voice Search Error',
+            description: 'Something went wrong. Please try again.',
+            variant: 'destructive'
+          });
+        }
+      };
+
+      recognition.start();
+    } catch (error) {
+      console.error('Failed to start speech recognition:', error);
+      toast({
+        title: 'Voice Search Error',
+        description: 'Failed to start voice recognition. Please try again.',
+        variant: 'destructive'
+      });
+    }
   };
 
-  if (!isSupported) return null;
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+    }
+    setIsListening(false);
+  };
 
+  // Always show the button - it will show error message if not supported
   return (
     <>
       {/* Floating Voice Button */}
@@ -78,10 +137,10 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card rounded-3xl p-8 max-w-md w-full text-center space-y-6"
+              className="bg-card rounded-3xl p-8 max-w-md w-full text-center space-y-6 relative"
             >
               <button
-                onClick={() => setIsListening(false)}
+                onClick={stopListening}
                 className="absolute top-4 right-4 p-2 hover:bg-muted rounded-full"
               >
                 <X className="w-5 h-5" />
@@ -90,8 +149,12 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
               <div className="relative">
                 <div className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center animate-pulse">
                   <div className="w-16 h-16 bg-primary/40 rounded-full flex items-center justify-center">
-                    <MicOff className="w-8 h-8 text-primary" />
+                    <Mic className="w-8 h-8 text-primary" />
                   </div>
+                </div>
+                {/* Sound wave animation */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full border-4 border-primary/30 animate-ping" />
                 </div>
               </div>
 
@@ -109,6 +172,13 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
               <p className="text-sm text-muted-foreground">
                 Try saying "pizza", "waffle", or "mocktail"
               </p>
+
+              <button
+                onClick={stopListening}
+                className="px-6 py-3 bg-destructive text-destructive-foreground rounded-full font-medium hover:bg-destructive/90 transition-colors"
+              >
+                Stop Listening
+              </button>
             </motion.div>
           </motion.div>
         )}

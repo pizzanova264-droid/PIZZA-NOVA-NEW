@@ -1,0 +1,190 @@
+import { useState, useRef, useEffect } from 'react';
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export function MetaAIChatbot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      role: 'assistant',
+      content: "Welcome to Pizza Nova! 🍕 I'm your AI assistant. How can I help you today? You can ask me about our menu, place orders, or get recommendations!"
+    }
+  ]);
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: input.trim()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    // Simulate AI response (in production, this would call the edge function)
+    setTimeout(() => {
+      const responses = [
+        "I'd recommend our Spicy Paneer Tikka Pizza - it's our bestseller! 🌶️ Would you like to know more about it?",
+        "Our menu features 100% vegan options. The Vegan Supreme Pizza is loaded with fresh vegetables and plant-based cheese!",
+        "For dessert, try our Belgian Chocolate Waffle or the famous Nutella Bliss - they're customer favorites! 🧇",
+        "We offer fast delivery! Your order typically arrives in 30-45 minutes. Would you like to place an order?",
+        "Our Truffle Pizza is a premium choice - it features truffle oil, arugula, and vegan parmesan. Perfect for special occasions!"
+      ];
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: responses[Math.floor(Math.random() * responses.length)]
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <>
+      {/* Chat Toggle Button */}
+      <motion.button
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+        onClick={() => setIsOpen(true)}
+        className={`fixed bottom-6 left-6 z-40 w-14 h-14 rounded-full shadow-elevated flex items-center justify-center transition-colors ${
+          isOpen ? 'hidden' : 'bg-primary text-primary-foreground hover:bg-primary/90'
+        }`}
+        aria-label="Open AI Chat"
+      >
+        <MessageCircle className="w-6 h-6" />
+      </motion.button>
+
+      {/* Chat Sidebar */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop for mobile */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40 md:hidden"
+            />
+
+            {/* Sidebar */}
+            <motion.div
+              initial={{ x: -400, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: -400, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed left-0 top-0 bottom-0 w-full max-w-sm bg-card border-r border-border shadow-elevated z-50 flex flex-col"
+            >
+              {/* Header */}
+              <div className="p-4 border-b border-border bg-primary text-primary-foreground">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary-foreground/20 flex items-center justify-center">
+                      <Sparkles className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="font-serif font-bold">Meta AI</h2>
+                      <p className="text-xs text-primary-foreground/80">Pizza Nova Assistant</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setIsOpen(false)}
+                    className="p-2 hover:bg-primary-foreground/10 rounded-full transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Messages */}
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                {messages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex gap-3 ${message.role === 'user' ? 'flex-row-reverse' : ''}`}
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      message.role === 'user' 
+                        ? 'bg-primary text-primary-foreground' 
+                        : 'bg-muted text-foreground'
+                    }`}>
+                      {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                    </div>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      message.role === 'user'
+                        ? 'bg-primary text-primary-foreground rounded-br-md'
+                        : 'bg-muted text-foreground rounded-bl-md'
+                    }`}>
+                      <p className="text-sm">{message.content}</p>
+                    </div>
+                  </div>
+                ))}
+
+                {isLoading && (
+                  <div className="flex gap-3">
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                      <Bot className="w-4 h-4" />
+                    </div>
+                    <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    </div>
+                  </div>
+                )}
+
+                <div ref={messagesEndRef} />
+              </div>
+
+              {/* Input */}
+              <div className="p-4 border-t border-border bg-card">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder="Ask about our menu..."
+                    className="flex-1 px-4 py-3 rounded-full border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isLoading}
+                    className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Powered by Meta AI • Pizza Nova
+                </p>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}

@@ -11,6 +11,7 @@ import { ReviewsSection } from '@/components/ReviewsSection';
 import { DeliverySection } from '@/components/DeliverySection';
 import { Footer } from '@/components/Footer';
 import { VoiceSearch } from '@/components/VoiceSearch';
+import { MetaAIChatbot } from '@/components/MetaAIChatbot';
 
 const Index = () => {
   const handleVoiceSearch = (query: string) => {
@@ -36,6 +37,7 @@ const Index = () => {
       </main>
       <Footer />
       <VoiceSearch onSearch={handleVoiceSearch} />
+      <MetaAIChatbot />
     </div>
   );
 };

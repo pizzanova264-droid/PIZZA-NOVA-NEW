@@ -42,6 +42,9 @@ import waffleStrawberry from '@/assets/menu/waffle-strawberry.jpg';
 import waffleNutella from '@/assets/menu/waffle-nutella.jpg';
 import waffleOreo from '@/assets/menu/waffle-oreo.jpg';
 import waffleMaple from '@/assets/menu/waffle-maple.jpg';
+import waffleBlueberry from '@/assets/menu/waffle-blueberry.jpg';
+import waffleCaramel from '@/assets/menu/waffle-caramel.jpg';
+import waffleRedVelvet from '@/assets/menu/waffle-red-velvet.jpg';
 
 // Dessert imports
 import brownie from '@/assets/menu/brownie.jpg';
@@ -93,10 +96,10 @@ const categories = [
 const menuItems: Record<string, Array<{ name: string; description: string; price: number; image: string; badge?: string }>> = {
   pizzas: [
     { name: 'Classic Margherita', description: 'Timeless perfection with fresh tomato sauce, vegan mozzarella, and aromatic basil leaves on a golden crust', price: 249, image: pizzaMargherita },
-    { name: 'Farm Fresh Veggie', description: 'Garden-fresh vegetables including bell peppers, mushrooms, olives, and onions with melted vegan cheese', price: 299, image: pizzaFarmFresh },
+    { name: 'Farm Fresh Veggie', description: 'Garden-fresh vegetables including bell peppers, olives, tomatoes, and onions with melted vegan cheese', price: 299, image: pizzaFarmFresh },
     { name: 'Spicy Paneer Tikka', description: 'Marinated paneer cubes with colorful peppers, onions, and cilantro in a zesty tikka sauce', price: 329, image: pizzaPaneerTikka, badge: 'Bestseller' },
     { name: 'Vegan Supreme', description: 'Loaded with plant-based toppings, olives, artichokes, spinach, and sundried tomatoes', price: 349, image: pizzaVeganSupreme },
-    { name: 'Truffle Mushroom Delight', description: 'Gourmet mushroom medley with truffle oil drizzle, arugula, and vegan parmesan', price: 379, image: pizzaTruffleMushroom, badge: 'Premium' },
+    { name: 'Truffle Arugula Delight', description: 'Gourmet pizza with truffle oil drizzle, arugula, olives, and vegan parmesan', price: 379, image: pizzaTruffleMushroom, badge: 'Premium' },
   ],
   sandwiches: [
     { name: 'Grilled Veg Delight', description: 'Layers of grilled zucchini, eggplant, and peppers with melted cheese on artisan bread', price: 179, image: sandwichGrilledVeg },
@@ -132,6 +135,9 @@ const menuItems: Record<string, Array<{ name: string; description: string; price
     { name: 'Nutella Bliss', description: 'Generous Nutella spread with chopped hazelnuts and banana slices', price: 249, image: waffleNutella, badge: 'Indulgent' },
     { name: 'Oreo Crunch', description: 'Crushed Oreo cookies, chocolate sauce, and vanilla ice cream', price: 239, image: waffleOreo },
     { name: 'Maple Butter Classic', description: 'Golden butter pat with pure maple syrup and fresh berries', price: 189, image: waffleMaple },
+    { name: 'Blueberry Delight', description: 'Fresh blueberries, whipped cream, and tangy blueberry sauce drizzle', price: 229, image: waffleBlueberry },
+    { name: 'Caramel Cinnamon', description: 'Warm caramel sauce, cinnamon sugar, and butter pat topping', price: 209, image: waffleCaramel, badge: 'New' },
+    { name: 'Red Velvet Dream', description: 'Rich red velvet waffle with cream cheese glaze and raspberry', price: 259, image: waffleRedVelvet, badge: 'Premium' },
   ],
   desserts: [
     { name: 'Brownie', description: 'Fudgy chocolate brownie with vanilla ice cream and chocolate sauce', price: 149, image: brownie },

@@ -4,119 +4,121 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Pizza Nova Design System - Premium Vegan Restaurant */
+/* Pizza Nova Design System - Green Sage Luxury Theme */
 
 @layer base {
   :root {
-    /* Core Brand Colors */
-    --background: 0 0% 100%;
-    --foreground: 20 10% 15%;
+    /* Green Sage Luxury Palette */
+    --background: 90 25% 95%; /* Soft Sage #DCEAD1 */
+    --foreground: 0 0% 18%; /* Charcoal Black #2E2E2E */
 
     --card: 0 0% 100%;
-    --card-foreground: 20 10% 15%;
+    --card-foreground: 0 0% 18%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 20 10% 15%;
+    --popover-foreground: 0 0% 18%;
 
-    /* Pizza Nova Red */
-    --primary: 4 85% 45%;
+    /* Deep Forest Green Primary */
+    --primary: 150 100% 13%; /* #014421 */
     --primary-foreground: 0 0% 100%;
 
-    /* Warm Cream */
-    --secondary: 40 35% 96%;
-    --secondary-foreground: 20 10% 15%;
+    /* Warm Cream Secondary */
+    --secondary: 90 25% 92%;
+    --secondary-foreground: 0 0% 18%;
 
-    /* Soft Sage */
-    --muted: 120 15% 95%;
-    --muted-foreground: 20 10% 45%;
+    /* Soft Sage Muted */
+    --muted: 90 25% 90%;
+    --muted-foreground: 0 0% 35%;
 
-    /* Fresh Basil Green */
-    --accent: 140 45% 40%;
+    /* Deep Forest Green Accent */
+    --accent: 150 100% 13%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 20% 90%;
-    --input: 30 20% 90%;
-    --ring: 4 85% 45%;
+    --border: 90 15% 85%;
+    --input: 90 15% 85%;
+    --ring: 150 100% 13%;
 
     --radius: 0.75rem;
 
     /* Extended Palette */
-    --gold: 42 90% 55%;
-    --gold-foreground: 20 10% 15%;
+    --gold: 42 76% 53%; /* Muted Gold #D4AF37 */
+    --gold-foreground: 0 0% 18%;
     --warm-white: 40 40% 98%;
     --cream: 40 35% 94%;
     --terracotta: 15 65% 55%;
     --olive: 80 35% 45%;
     --tomato: 4 85% 45%;
+    --amber: 45 100% 50%; /* Subtle Amber #FFBF00 */
 
-    /* Shadows */
-    --shadow-soft: 0 2px 15px -3px hsl(20 10% 15% / 0.08);
-    --shadow-medium: 0 4px 25px -5px hsl(20 10% 15% / 0.12);
-    --shadow-elevated: 0 10px 40px -10px hsl(20 10% 15% / 0.15);
+    /* Shadows with sage undertone */
+    --shadow-soft: 0 2px 15px -3px hsl(150 30% 30% / 0.08);
+    --shadow-medium: 0 4px 25px -5px hsl(150 30% 30% / 0.12);
+    --shadow-elevated: 0 10px 40px -10px hsl(150 30% 30% / 0.15);
 
     /* Sidebar */
-    --sidebar-background: 40 40% 98%;
-    --sidebar-foreground: 20 10% 25%;
-    --sidebar-primary: 4 85% 45%;
+    --sidebar-background: 90 25% 97%;
+    --sidebar-foreground: 0 0% 18%;
+    --sidebar-primary: 150 100% 13%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 140 45% 40%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 30 20% 90%;
-    --sidebar-ring: 4 85% 45%;
+    --sidebar-accent: 42 76% 53%;
+    --sidebar-accent-foreground: 0 0% 18%;
+    --sidebar-border: 90 15% 85%;
+    --sidebar-ring: 150 100% 13%;
   }
 
   .dark {
-    --background: 20 15% 8%;
-    --foreground: 40 20% 95%;
+    --background: 150 15% 8%;
+    --foreground: 90 20% 95%;
 
-    --card: 20 15% 12%;
-    --card-foreground: 40 20% 95%;
+    --card: 150 15% 12%;
+    --card-foreground: 90 20% 95%;
 
-    --popover: 20 15% 10%;
-    --popover-foreground: 40 20% 95%;
+    --popover: 150 15% 10%;
+    --popover-foreground: 90 20% 95%;
 
-    --primary: 4 80% 55%;
+    --primary: 140 60% 45%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 15% 18%;
-    --secondary-foreground: 40 20% 95%;
+    --secondary: 150 15% 18%;
+    --secondary-foreground: 90 20% 95%;
 
-    --muted: 20 15% 20%;
-    --muted-foreground: 40 15% 65%;
+    --muted: 150 15% 20%;
+    --muted-foreground: 90 15% 65%;
 
-    --accent: 140 45% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 76% 53%;
+    --accent-foreground: 0 0% 18%;
 
     --destructive: 0 70% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 15% 20%;
-    --input: 20 15% 20%;
-    --ring: 4 80% 55%;
+    --border: 150 15% 20%;
+    --input: 150 15% 20%;
+    --ring: 140 60% 45%;
 
-    --gold: 42 85% 50%;
-    --gold-foreground: 20 10% 10%;
-    --warm-white: 20 15% 15%;
-    --cream: 20 15% 18%;
+    --gold: 42 80% 55%;
+    --gold-foreground: 0 0% 10%;
+    --warm-white: 150 15% 15%;
+    --cream: 150 15% 18%;
     --terracotta: 15 60% 50%;
     --olive: 80 30% 40%;
     --tomato: 4 80% 55%;
+    --amber: 45 100% 55%;
 
     --shadow-soft: 0 2px 15px -3px hsl(0 0% 0% / 0.3);
     --shadow-medium: 0 4px 25px -5px hsl(0 0% 0% / 0.4);
     --shadow-elevated: 0 10px 40px -10px hsl(0 0% 0% / 0.5);
 
-    --sidebar-background: 20 15% 10%;
-    --sidebar-foreground: 40 20% 90%;
-    --sidebar-primary: 4 80% 55%;
+    --sidebar-background: 150 15% 10%;
+    --sidebar-foreground: 90 20% 90%;
+    --sidebar-primary: 140 60% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 140 45% 45%;
+    --sidebar-accent: 42 76% 53%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 20 15% 20%;
-    --sidebar-ring: 4 80% 55%;
+    --sidebar-border: 150 15% 20%;
+    --sidebar-ring: 140 60% 45%;
   }
 }
 
@@ -141,7 +143,7 @@
 }
 
 @layer components {
-  /* Hero Button Variants */
+  /* Hero Button Variants - Gold Accent */
   .btn-hero-primary {
     @apply bg-primary text-primary-foreground px-8 py-4 rounded-full font-semibold text-lg shadow-lg transition-all duration-300;
     box-shadow: var(--shadow-medium);
@@ -153,7 +155,9 @@
   }
 
   .btn-hero-secondary {
-    @apply bg-accent text-accent-foreground px-8 py-4 rounded-full font-semibold text-lg shadow-lg transition-all duration-300;
+    @apply px-8 py-4 rounded-full font-semibold text-lg shadow-lg transition-all duration-300;
+    background: hsl(var(--gold));
+    color: hsl(var(--foreground));
     box-shadow: var(--shadow-medium);
   }
 
@@ -190,24 +194,31 @@
     @apply max-w-7xl mx-auto;
   }
 
-  /* Text Gradients */
+  /* Text Gradients - Green & Gold */
   .text-gradient-brand {
-    @apply bg-gradient-to-r from-primary via-terracotta to-gold bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary via-accent to-gold bg-clip-text text-transparent;
   }
 
   /* Feature Badge */
   .feature-badge {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 text-accent font-medium text-sm;
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm;
   }
 
-  /* Divider */
+  /* Divider - Green & Gold Gradient */
   .divider-decorative {
-    @apply h-1 w-20 mx-auto bg-gradient-to-r from-primary via-gold to-accent rounded-full;
+    @apply h-1 w-20 mx-auto rounded-full;
+    background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--gold)), hsl(var(--primary)));
   }
 
   /* Price Tag */
   .price-tag {
-    @apply text-primary font-bold text-xl;
+    @apply font-bold text-xl;
+    color: hsl(var(--gold));
+  }
+
+  /* Gold accent text */
+  .text-gold-accent {
+    color: hsl(var(--gold));
   }
 }
 
@@ -293,7 +304,7 @@
   50% { opacity: 0.7; }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar - Green Theme */
 ::-webkit-scrollbar {
   width: 10px;
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MapPin, Building, Layers, Navigation, CreditCard, Smartphone, Wallet, Banknote, CheckCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,6 +70,12 @@ export default function Checkout() {
 
       clearCart();
       setOrderSuccess(true);
+      
+      // Show success toast
+      toast({ 
+        title: '🎉 Order Placed Successfully!', 
+        description: 'Thank you for ordering from Pizza Nova!' 
+      });
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'Failed to place order', variant: 'destructive' });
     }
@@ -78,19 +85,38 @@ export default function Checkout() {
 
   if (orderSuccess) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-accent/10 via-background to-accent/5 flex items-center justify-center p-4">
-        <div className="bg-card rounded-3xl shadow-elevated p-8 max-w-md w-full text-center space-y-6">
-          <div className="w-24 h-24 mx-auto bg-accent/20 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-12 h-12 text-accent" />
-          </div>
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5 flex items-center justify-center p-4">
+        <motion.div 
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', damping: 20 }}
+          className="bg-card rounded-3xl shadow-elevated p-8 max-w-md w-full text-center space-y-6"
+        >
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring', damping: 15 }}
+            className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center"
+          >
+            <CheckCircle className="w-12 h-12 text-primary" />
+          </motion.div>
+          
           <img src={logo} alt="Pizza Nova" className="h-16 mx-auto" />
-          <h1 className="text-3xl font-serif font-bold text-foreground">Order Placed Successfully!</h1>
-          <p className="text-muted-foreground text-lg">
-            Thank you for ordering from Pizza Nova! 🍕
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Your delicious vegan meal is being prepared with love and will be delivered soon.
-          </p>
+          
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h1 className="text-3xl font-serif font-bold text-foreground">Order Placed Successfully!</h1>
+            <p className="text-muted-foreground text-lg mt-4">
+              Thank you for ordering from Pizza Nova! 🍕
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              Your delicious vegan meal is being prepared with love and will be delivered soon.
+            </p>
+          </motion.div>
+
           <div className="pt-4 space-y-3">
             <button
               onClick={() => navigate('/orders')}
@@ -105,7 +131,7 @@ export default function Checkout() {
               Continue Shopping
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     );
   }
@@ -211,7 +237,7 @@ export default function Checkout() {
 
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { id: 'cod', name: 'Cash on Delivery', icon: Banknote, color: 'text-accent' },
+                  { id: 'cod', name: 'Cash on Delivery', icon: Banknote, color: 'text-primary' },
                   { id: 'upi', name: 'UPI / Google Pay', icon: Smartphone, color: 'text-blue-500' },
                   { id: 'paytm', name: 'Paytm Wallet', icon: Wallet, color: 'text-sky-500' },
                   { id: 'card', name: 'Card Payment', icon: CreditCard, color: 'text-purple-500' },
@@ -250,7 +276,7 @@ export default function Checkout() {
                       <h3 className="font-medium text-sm">{item.name}</h3>
                       <p className="text-muted-foreground text-sm">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-semibold text-primary">₹{item.price * item.quantity}</p>
+                    <p className="font-semibold text-gold-accent">₹{item.price * item.quantity}</p>
                   </div>
                 ))}
               </div>
@@ -262,11 +288,11 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Delivery Fee</span>
-                  <span className="text-accent">FREE</span>
+                  <span className="text-primary">FREE</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
                   <span>Total</span>
-                  <span className="text-primary">₹{totalPrice}</span>
+                  <span className="text-gold-accent">₹{totalPrice}</span>
                 </div>
               </div>
 

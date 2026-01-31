@@ -1,139 +1,208 @@
-import { Mail, Phone, MapPin, Instagram, Clock, Heart, Send } from 'lucide-react';
+import { Mail, Phone, MapPin, Instagram, Clock, Heart, Send, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 import { AnimatedSection } from './AnimatedSection';
+import { toast } from '@/hooks/use-toast';
 import logo from '@/assets/pizza-nova-logo.webp';
 
 export function Footer() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    alert('Thank you for your message! We will get back to you soon.');
+    setLoading(true);
+    
+    // Simulate sending message
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: 'Message Sent! 💌',
+      description: 'Thank you for reaching out. We will get back to you soon.',
+    });
+    
     setName('');
     setEmail('');
     setMessage('');
+    setLoading(false);
   };
 
   return (
-    <footer id="contact" className="bg-gradient-to-b from-foreground to-foreground/95 text-background">
+    <footer id="contact" className="bg-gradient-to-b from-primary to-primary/95 text-primary-foreground">
       <div className="container-main section-padding">
+        {/* Header */}
         <AnimatedSection className="text-center mb-12">
+          <div className="inline-flex items-center gap-2 mb-4">
+            <span className="h-px w-12 bg-gold" />
+            <span className="text-gold text-sm font-medium">GET IN TOUCH</span>
+            <span className="h-px w-12 bg-gold" />
+          </div>
           <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">Contact Us</h2>
-          <div className="h-1 w-20 mx-auto bg-gradient-to-r from-primary via-gold to-accent rounded-full" />
+          <div className="h-1 w-20 mx-auto bg-gradient-to-r from-gold via-amber to-gold rounded-full" />
         </AnimatedSection>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Brand */}
-          <AnimatedSection className="space-y-4">
-            <img src={logo} alt="Pizza Nova" className="h-20 w-auto brightness-0 invert" />
-            <p className="text-background/70 text-sm">
-              Crafted with Passion Since 1988. A legacy of authentic vegan flavours, premium ingredients, and unforgettable ambiance.
-            </p>
-          </AnimatedSection>
-
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* Contact Info */}
-          <AnimatedSection delay={0.1} className="space-y-4">
-            <h3 className="font-serif font-semibold text-lg flex items-center gap-2">
-              <Mail className="w-5 h-5 text-gold" />
-              Get in Touch
-            </h3>
-            <div className="space-y-3">
-              <a href="mailto:pizzanova264@gmail.com" className="flex items-center gap-3 text-background/70 hover:text-background transition-colors">
-                <Mail className="w-4 h-4" />
+          <AnimatedSection className="space-y-6">
+            <img src={logo} alt="Pizza Nova" className="h-16 w-auto brightness-0 invert" />
+            
+            <div className="space-y-4">
+              <a 
+                href="mailto:hellopizzanova.in" 
+                className="flex items-center gap-3 text-primary-foreground/80 hover:text-primary-foreground transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                  <Mail className="w-5 h-5" />
+                </div>
+                <span>hellopizzanova.in</span>
+              </a>
+              
+              <a 
+                href="mailto:pizzanova264@gmail.com" 
+                className="flex items-center gap-3 text-primary-foreground/80 hover:text-primary-foreground transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                  <Mail className="w-5 h-5" />
+                </div>
                 <span>pizzanova264@gmail.com</span>
               </a>
-              <a href="tel:+919876543210" className="flex items-center gap-3 text-background/70 hover:text-background transition-colors">
-                <Phone className="w-4 h-4" />
-                <span>+91 98765 43210</span>
-              </a>
-              <div className="flex items-start gap-3 text-background/70">
-                <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                <span>123 Gourmet Street, Food Court Road, Mumbai 400001, India</span>
-              </div>
-            </div>
-          </AnimatedSection>
-
-          {/* Hours */}
-          <AnimatedSection delay={0.2} className="space-y-4">
-            <h3 className="font-serif font-semibold text-lg flex items-center gap-2">
-              <Clock className="w-5 h-5 text-gold" />
-              Opening Hours
-            </h3>
-            <div className="space-y-2 text-background/70">
-              <div className="flex justify-between">
-                <span>Mon - Thu:</span>
-                <span>11:00 AM - 10:00 PM</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Fri - Sun:</span>
-                <span>11:00 AM - 11:00 PM</span>
-              </div>
-            </div>
-            
-            <h3 className="font-serif font-semibold text-lg pt-4">Follow Us</h3>
-            <div className="flex gap-4">
+              
               <a 
-                href="https://instagram.com/pizzanova264" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center hover:scale-110 transition-transform"
+                href="tel:+919876542210" 
+                className="flex items-center gap-3 text-primary-foreground/80 hover:text-primary-foreground transition-colors group"
               >
-                <Instagram className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                  <Phone className="w-5 h-5" />
+                </div>
+                <span>+91 98765 42210</span>
               </a>
+              
+              <div className="flex items-start gap-3 text-primary-foreground/80">
+                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <span>123 Gourmet Street, Food Court Road, Mumbai - 400001, India</span>
+              </div>
             </div>
-            <p className="text-sm text-background/70">@pizzanova264</p>
+
+            {/* Operating Hours */}
+            <div className="pt-4 border-t border-primary-foreground/20">
+              <h3 className="font-serif font-semibold text-lg mb-4 flex items-center gap-2">
+                <Clock className="w-5 h-5 text-gold" />
+                Operating Hours
+              </h3>
+              <div className="space-y-2 text-primary-foreground/80">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gold" />
+                  <span>Mon-Thu: 11:00 AM - 10:00 PM</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-gold" />
+                  <span>Fri-Sun: 11:00 AM - 11:30 PM</span>
+                </div>
+              </div>
+            </div>
           </AnimatedSection>
 
           {/* Contact Form */}
-          <AnimatedSection delay={0.3} className="space-y-4">
-            <h3 className="font-serif font-semibold text-lg">Send a Message</h3>
-            <form onSubmit={handleSubmit} className="space-y-3">
+          <AnimatedSection delay={0.1} className="bg-primary-foreground/5 rounded-2xl p-6 border border-primary-foreground/10">
+            <h3 className="font-serif font-semibold text-xl mb-6 text-center">Contact Us</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your Name"
-                className="w-full px-4 py-2 rounded-lg bg-background/10 border border-background/20 text-background placeholder:text-background/50 focus:border-gold focus:outline-none"
+                placeholder="Name"
+                className="w-full px-4 py-3 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20"
                 required
               />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Your Email"
-                className="w-full px-4 py-2 rounded-lg bg-background/10 border border-background/20 text-background placeholder:text-background/50 focus:border-gold focus:outline-none"
+                placeholder="Email"
+                className="w-full px-4 py-3 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20"
                 required
               />
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="Your Message"
-                rows={3}
-                className="w-full px-4 py-2 rounded-lg bg-background/10 border border-background/20 text-background placeholder:text-background/50 focus:border-gold focus:outline-none resize-none"
+                placeholder="Message"
+                rows={4}
+                className="w-full px-4 py-3 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20 resize-none"
                 required
               />
               <button
                 type="submit"
-                className="w-full py-2 bg-gold text-foreground font-semibold rounded-lg hover:bg-gold/90 transition-colors flex items-center justify-center gap-2"
+                disabled={loading}
+                className="w-full py-3 bg-gold text-foreground font-semibold rounded-xl hover:bg-gold/90 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <Send className="w-4 h-4" />
-                Send Message
+                {loading ? 'Sending...' : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Message
+                  </>
+                )}
               </button>
             </form>
+          </AnimatedSection>
+
+          {/* Map & Social */}
+          <AnimatedSection delay={0.2} className="space-y-6">
+            {/* Map */}
+            <div className="bg-cream rounded-xl overflow-hidden h-48">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3771.755753508045!2d72.82548731490234!3d19.01759258712825!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be7ce9485c7f52f%3A0x31afc5a75c35f5b4!2sMumbai%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Pizza Nova Location"
+              />
+            </div>
+
+            {/* Follow Us */}
+            <div>
+              <h3 className="font-serif font-semibold text-lg mb-4">Follow Us</h3>
+              <div className="flex items-center gap-4">
+                <a 
+                  href="https://instagram.com/pizzanova264" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-12 h-12 rounded-full bg-gradient-to-br from-pink-500 via-red-500 to-yellow-500 flex items-center justify-center hover:scale-110 transition-transform"
+                  aria-label="Instagram"
+                >
+                  <Instagram className="w-6 h-6" />
+                </a>
+                <div className="text-primary-foreground/80">
+                  <p className="font-medium">@pizzanova264</p>
+                  <p className="text-sm">Follow for updates & offers</p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-primary-foreground/70 text-sm flex items-center gap-1">
+              Made with <Heart className="w-4 h-4 fill-gold text-gold" /> in India
+            </p>
           </AnimatedSection>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-background/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-background/70 text-sm">
-            © 2026 Pizza Nova. All rights reserved.
+        <div className="border-t border-primary-foreground/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-primary-foreground/70 text-sm">
+            © 2026 Pizza Nova. All rights reserved. | Crafted with Passion Since 1988
           </p>
-          <p className="text-background/70 text-sm flex items-center gap-1">
-            Made with <Heart className="w-4 h-4 fill-primary text-primary" /> in India
-          </p>
+          <div className="flex items-center gap-4">
+            <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground text-sm transition-colors">
+              Privacy Policy
+            </a>
+            <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground text-sm transition-colors">
+              Terms of Service
+            </a>
+          </div>
         </div>
       </div>
     </footer>

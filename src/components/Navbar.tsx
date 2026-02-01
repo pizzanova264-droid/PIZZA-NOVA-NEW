@@ -4,6 +4,7 @@ import { Sun, Moon, Menu, X, ShoppingCart, User, LogOut, Package } from 'lucide-
 import { useTheme } from '@/hooks/useTheme';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import { NotificationBell } from '@/components/NotificationBell';
 import logo from '@/assets/pizza-nova-logo.webp';
 
 const navLinks = [
@@ -48,6 +49,8 @@ export function Navbar() {
             <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-muted transition-colors">
               {theme === 'light' ? <Moon className="w-5 h-5 text-foreground" /> : <Sun className="w-5 h-5 text-gold" />}
             </button>
+
+            {user && <NotificationBell />}
 
             <button onClick={() => setIsCartOpen(true)} className="p-2 rounded-full hover:bg-muted transition-colors relative">
               <ShoppingCart className="w-5 h-5 text-foreground" />

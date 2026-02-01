@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { WhyChooseUs } from '@/components/WhyChooseUs';
+import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { MenuSection } from '@/components/MenuSection';
 import { PizzaCustomizer } from '@/components/PizzaCustomizer';
 import { CombosSection } from '@/components/CombosSection';
@@ -27,6 +28,7 @@ const Index = () => {
       <main>
         <HeroSection />
         <WhyChooseUs />
+        <RecentlyViewed />
         <MenuSection />
         <PizzaCustomizer />
         <CombosSection />

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, Clock, CheckCircle, MapPin } from 'lucide-react';
+import { ArrowLeft, Package, Clock, CheckCircle, MapPin, RefreshCw } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
+import { OrderTracking } from '@/components/OrderTracking';
 import logo from '@/assets/pizza-nova-logo.webp';
 
 interface Order {
@@ -24,6 +26,7 @@ export default function Orders() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -34,6 +37,29 @@ export default function Orders() {
   useEffect(() => {
     if (user) {
       fetchOrders();
+      
+      // Set up realtime subscription for order updates
+      const channel = supabase
+        .channel('order-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'orders',
+            filter: `user_id=eq.${user.id}`,
+          },
+          (payload) => {
+            setOrders(prev => prev.map(o => 
+              o.id === payload.new.id ? { ...o, ...payload.new } : o
+            ));
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
@@ -54,6 +80,9 @@ export default function Orders() {
 
     if (!error && data) {
       setOrders(data as any);
+      if (data.length > 0 && !selectedOrder) {
+        setSelectedOrder(data[0] as any);
+      }
     }
     setLoading(false);
   };
@@ -62,11 +91,30 @@ export default function Orders() {
     switch (status) {
       case 'confirmed':
         return <CheckCircle className="w-5 h-5 text-accent" />;
-      case 'pending':
-        return <Clock className="w-5 h-5 text-gold" />;
-      default:
+      case 'preparing':
+        return <RefreshCw className="w-5 h-5 text-gold animate-spin" />;
+      case 'ready':
         return <Package className="w-5 h-5 text-primary" />;
+      case 'out_for_delivery':
+        return <motion.div animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity }}>
+          <Package className="w-5 h-5 text-primary" />
+        </motion.div>;
+      case 'delivered':
+        return <CheckCircle className="w-5 h-5 text-accent" />;
+      default:
+        return <Clock className="w-5 h-5 text-muted-foreground" />;
     }
+  };
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      confirmed: 'Order Confirmed',
+      preparing: 'Being Prepared',
+      ready: 'Ready for Pickup',
+      out_for_delivery: 'Out for Delivery',
+      delivered: 'Delivered',
+    };
+    return labels[status] || status;
   };
 
   const formatDate = (dateString: string) => {
@@ -77,6 +125,16 @@ export default function Orders() {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const getFullAddress = (addresses: Order['addresses']) => {
+    if (!addresses) return '';
+    return [
+      addresses.address_line,
+      addresses.floor_no && `Floor: ${addresses.floor_no}`,
+      addresses.block,
+      addresses.landmark && `Near ${addresses.landmark}`,
+    ].filter(Boolean).join(', ');
   };
 
   if (authLoading || loading) {
@@ -95,7 +153,7 @@ export default function Orders() {
           <button onClick={() => navigate('/')} className="p-2 hover:bg-muted rounded-full">
             <ArrowLeft className="w-6 h-6" />
           </button>
-          <h1 className="text-xl font-serif font-bold">Order History</h1>
+          <h1 className="text-xl font-serif font-bold">My Orders</h1>
         </div>
       </div>
 
@@ -110,55 +168,96 @@ export default function Orders() {
             </button>
           </div>
         ) : (
-          <div className="space-y-6">
-            {orders.map((order) => (
-              <div key={order.id} className="bg-card rounded-2xl shadow-soft overflow-hidden">
-                {/* Order Header */}
-                <div className="bg-secondary p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    {getStatusIcon(order.status)}
-                    <div>
-                      <p className="font-semibold capitalize">{order.status}</p>
-                      <p className="text-sm text-muted-foreground">{formatDate(order.created_at)}</p>
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Order List */}
+            <div className="space-y-4">
+              <h2 className="text-lg font-serif font-semibold mb-4">Order History</h2>
+              {orders.map((order) => (
+                <motion.div
+                  key={order.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  onClick={() => setSelectedOrder(order)}
+                  className={`bg-card rounded-xl shadow-soft p-4 cursor-pointer transition-all hover:shadow-medium ${
+                    selectedOrder?.id === order.id ? 'ring-2 ring-primary' : ''
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      {getStatusIcon(order.status)}
+                      <span className="font-medium text-sm">{getStatusLabel(order.status)}</span>
                     </div>
+                    <span className="text-lg font-bold text-primary">₹{order.total_amount}</span>
                   </div>
-                  <p className="text-xl font-bold text-primary">₹{order.total_amount}</p>
-                </div>
-
-                {/* Order Items */}
-                <div className="p-4 space-y-3">
-                  {order.items.map((item: any, index: number) => (
-                    <div key={index} className="flex gap-3">
+                  
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {order.items.slice(0, 3).map((item: any, index: number) => (
                       <img
+                        key={index}
                         src={item.image}
                         alt={item.name}
-                        className="w-14 h-14 rounded-lg object-cover"
+                        className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                       />
-                      <div className="flex-1">
-                        <h3 className="font-medium text-sm">{item.name}</h3>
-                        <p className="text-muted-foreground text-xs">Qty: {item.quantity}</p>
+                    ))}
+                    {order.items.length > 3 && (
+                      <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-sm font-medium">
+                        +{order.items.length - 3}
                       </div>
-                      <p className="text-sm font-semibold">₹{item.price * item.quantity}</p>
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {formatDate(order.created_at)}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
 
-                {/* Delivery Address */}
-                {order.addresses && (
-                  <div className="border-t border-border p-4">
-                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                      <p>
-                        {order.addresses.address_line}
-                        {order.addresses.floor_no && `, Floor: ${order.addresses.floor_no}`}
-                        {order.addresses.block && `, ${order.addresses.block}`}
-                        {order.addresses.landmark && ` (Near ${order.addresses.landmark})`}
-                      </p>
+            {/* Order Tracking */}
+            <div className="lg:sticky lg:top-24 h-fit">
+              {selectedOrder ? (
+                <div className="space-y-6">
+                  <OrderTracking
+                    orderId={selectedOrder.id}
+                    status={selectedOrder.status}
+                    address={getFullAddress(selectedOrder.addresses)}
+                  />
+                  
+                  {/* Order Items */}
+                  <div className="bg-card rounded-2xl p-6 shadow-soft">
+                    <h3 className="text-lg font-serif font-bold mb-4">Order Items</h3>
+                    <div className="space-y-3">
+                      {selectedOrder.items.map((item: any, index: number) => (
+                        <div key={index} className="flex gap-3">
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-14 h-14 rounded-lg object-cover"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-medium text-sm">{item.name}</h4>
+                            <p className="text-muted-foreground text-xs">Qty: {item.quantity}</p>
+                          </div>
+                          <p className="text-sm font-semibold">₹{item.price * item.quantity}</p>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="border-t border-border mt-4 pt-4">
+                      <div className="flex justify-between text-lg font-bold">
+                        <span>Total</span>
+                        <span className="text-primary">₹{selectedOrder.total_amount}</span>
+                      </div>
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              ) : (
+                <div className="bg-card rounded-2xl p-8 shadow-soft text-center">
+                  <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">Select an order to view details</p>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

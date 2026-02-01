@@ -4,6 +4,7 @@ import { ArrowLeft, MapPin, Building, Layers, Navigation, CreditCard, Smartphone
 import { motion } from 'framer-motion';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import logo from '@/assets/pizza-nova-logo.webp';
@@ -11,6 +12,7 @@ import logo from '@/assets/pizza-nova-logo.webp';
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
   const { user } = useAuth();
+  const { addNotification } = useNotifications();
   const navigate = useNavigate();
   
   const [address, setAddress] = useState('');
@@ -70,6 +72,13 @@ export default function Checkout() {
 
       clearCart();
       setOrderSuccess(true);
+      
+      // Send notification
+      addNotification({
+        type: 'order',
+        title: '🎉 Order Confirmed!',
+        message: `Your order of ₹${totalPrice} has been confirmed and is being prepared with love!`,
+      });
       
       // Show success toast
       toast({ 

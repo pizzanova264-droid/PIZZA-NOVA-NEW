@@ -78,18 +78,56 @@ import espresso from '@/assets/menu/espresso.jpg';
 import coffeLatte from '@/assets/coffee-latte.png';
 import croissant from '@/assets/menu/croissant.jpg';
 
+// Frankie imports
+import frankieVeg from '@/assets/menu/frankie-veg.jpg';
+import frankiePaneer from '@/assets/menu/frankie-paneer.jpg';
+import frankieCheese from '@/assets/menu/frankie-cheese.jpg';
+import frankieSchezwan from '@/assets/menu/frankie-schezwan.jpg';
+import frankieAloo from '@/assets/menu/frankie-aloo.jpg';
+
+// Taco imports
+import tacoVeg from '@/assets/menu/taco-veg.jpg';
+import tacoPaneer from '@/assets/menu/taco-paneer.jpg';
+import tacoPotato from '@/assets/menu/taco-potato.jpg';
+import tacoBean from '@/assets/menu/taco-bean.jpg';
+
+// Wrap imports
+import wrapPaneer from '@/assets/menu/wrap-paneer.jpg';
+import wrapFalafel from '@/assets/menu/wrap-falafel.jpg';
+import wrapGarden from '@/assets/menu/wrap-garden.jpg';
+import wrapBurrito from '@/assets/menu/wrap-burrito.jpg';
+
+// Drink imports
+import drinkCola from '@/assets/menu/drink-cola.jpg';
+import drinkPepsi from '@/assets/menu/drink-pepsi.jpg';
+import drinkDew from '@/assets/menu/drink-dew.jpg';
+
+// More pastry imports
+import pastryBlueberry from '@/assets/menu/pastry-blueberry.jpg';
+import pastryMango from '@/assets/menu/pastry-mango.jpg';
+import pastryTiramisu from '@/assets/menu/pastry-tiramisu.jpg';
+
+// More waffle imports
+import waffleBanana from '@/assets/menu/waffle-banana.jpg';
+import waffleBerry from '@/assets/menu/waffle-berry.jpg';
+import waffleVanilla from '@/assets/menu/waffle-vanilla.jpg';
+
 const categories = [
   { id: 'pizzas', name: '🍕 Pizzas', emoji: '🍕' },
   { id: 'sandwiches', name: '🥪 Sandwiches', emoji: '🥪' },
   { id: 'burgers', name: '🍔 Burgers', emoji: '🍔' },
+  { id: 'frankies', name: '🌯 Frankies', emoji: '🌯' },
+  { id: 'tacos', name: '🌮 Tacos', emoji: '🌮' },
+  { id: 'wraps', name: '🥙 Veg Wraps', emoji: '🥙' },
   { id: 'fries', name: '🍟 Fries & Snacks', emoji: '🍟' },
-  { id: 'nachos', name: '🌮 Nachos', emoji: '🌮' },
+  { id: 'nachos', name: '🧀 Nachos', emoji: '🧀' },
   { id: 'pasta', name: '🍝 Pasta & Noodles', emoji: '🍝' },
   { id: 'waffles', name: '🧇 Waffles', emoji: '🧇' },
   { id: 'desserts', name: '🍰 Desserts', emoji: '🍰' },
   { id: 'icecream', name: '🍨 Ice Cream', emoji: '🍨' },
   { id: 'shakes', name: '🥤 Milkshakes', emoji: '🥤' },
   { id: 'mocktails', name: '🍹 Mocktails', emoji: '🍹' },
+  { id: 'drinks', name: '🥤 Soft Drinks', emoji: '🥤' },
   { id: 'coffee', name: '☕ Coffee & Bakery', emoji: '☕' },
 ];
 
@@ -170,6 +208,30 @@ const menuItems: Record<string, Array<{ name: string; description: string; price
     { name: 'Espresso', description: 'Rich espresso shot with perfect crema', price: 99, image: espresso },
     { name: 'Latte', description: 'Smooth espresso with steamed milk and whipped cream', price: 129, image: coffeLatte },
     { name: 'Croissant', description: 'Buttery golden flaky layers, fresh from the oven', price: 99, image: croissant },
+  ],
+  frankies: [
+    { name: 'Veg Frankie', description: 'Classic vegetable filling wrapped in soft roti with green chutney', price: 99, image: frankieVeg },
+    { name: 'Paneer Frankie', description: 'Spiced paneer cubes with onions, peppers, and mint chutney', price: 129, image: frankiePaneer, badge: 'Popular' },
+    { name: 'Cheese Frankie', description: 'Melted cheese with veggies wrapped in crispy paratha', price: 119, image: frankieCheese },
+    { name: 'Schezwan Frankie', description: 'Indo-Chinese spicy schezwan sauce with crispy veggies', price: 129, image: frankieSchezwan, badge: 'Spicy' },
+    { name: 'Aloo Tikki Frankie', description: 'Crispy potato patty with tangy tamarind and coriander chutney', price: 109, image: frankieAloo },
+  ],
+  tacos: [
+    { name: 'Veg Taco', description: 'Crispy shell with seasoned veggies, lettuce, cheese, and salsa', price: 119, image: tacoVeg },
+    { name: 'Paneer Taco', description: 'Grilled paneer with pico de gallo and sour cream', price: 149, image: tacoPaneer, badge: 'Bestseller' },
+    { name: 'Potato Crunch Taco', description: 'Crispy potato filling with jalapeños and chipotle sauce', price: 129, image: tacoPotato },
+    { name: 'Bean & Cheese Taco', description: 'Refried beans with melted cheese and fresh salsa verde', price: 139, image: tacoBean },
+  ],
+  wraps: [
+    { name: 'Paneer Tikka Wrap', description: 'Grilled paneer tikka with mint mayo in whole wheat wrap', price: 169, image: wrapPaneer, badge: 'Popular' },
+    { name: 'Falafel Wrap', description: 'Crispy falafel with hummus, tahini, and fresh vegetables', price: 179, image: wrapFalafel },
+    { name: 'Garden Fresh Wrap', description: 'Mixed greens, avocado, cucumber, and ranch dressing', price: 149, image: wrapGarden },
+    { name: 'Mexican Burrito Wrap', description: 'Rice, beans, corn, cheese, and spicy salsa in large tortilla', price: 199, image: wrapBurrito, badge: 'Filling' },
+  ],
+  drinks: [
+    { name: 'Coca Cola', description: 'Chilled classic cola (300ml)', price: 49, image: drinkCola },
+    { name: 'Pepsi', description: 'Refreshing Pepsi (300ml)', price: 49, image: drinkPepsi },
+    { name: 'Mountain Dew', description: 'Citrus blast energy drink (300ml)', price: 49, image: drinkDew },
   ],
 };
 

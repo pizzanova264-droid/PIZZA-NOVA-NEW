@@ -1,5 +1,5 @@
 import { Leaf, Clock, Award, Package, Truck, Users, Star } from 'lucide-react';
-import restaurantImage from '@/assets/restaurant-interior.png';
+import restaurantAmbience from '@/assets/restaurant-ambience.jpg';
 import { AnimatedSection } from './AnimatedSection';
 
 const features = [
@@ -49,7 +49,7 @@ export function WhyChooseUs() {
         {/* Restaurant Image Grid */}
         <AnimatedSection delay={0.3} className="relative rounded-2xl overflow-hidden shadow-elevated">
           <img 
-            src={restaurantImage}
+            src={restaurantAmbience}
             alt="Pizza Nova Restaurant Interior - Cozy Ambience with Wood-Fired Oven"
             className="w-full h-auto object-cover"
           />

@@ -29,7 +29,7 @@ export function Footer() {
   };
 
   return (
-    <footer id="contact" className="bg-gradient-to-b from-primary to-primary/95 text-primary-foreground">
+    <footer id="contact" className="bg-gradient-to-b from-foreground to-foreground/95 text-background">
       <div className="container-main section-padding">
         {/* Header */}
         <AnimatedSection className="text-center mb-12">
@@ -45,14 +45,14 @@ export function Footer() {
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
           {/* Contact Info */}
           <AnimatedSection className="space-y-6">
-            <img src={logo} alt="Pizza Nova" className="h-16 w-auto brightness-0 invert" />
+            <img src={logo} alt="Pizza Nova" className="h-16 w-auto" />
             
             <div className="space-y-4">
               <a 
                 href="mailto:hellopizzanova.in" 
-                className="flex items-center gap-3 text-primary-foreground/80 hover:text-primary-foreground transition-colors group"
+                className="flex items-center gap-3 text-background/80 hover:text-background transition-colors group"
               >
-                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
                   <Mail className="w-5 h-5" />
                 </div>
                 <span>hellopizzanova.in</span>
@@ -60,9 +60,9 @@ export function Footer() {
               
               <a 
                 href="mailto:pizzanova264@gmail.com" 
-                className="flex items-center gap-3 text-primary-foreground/80 hover:text-primary-foreground transition-colors group"
+                className="flex items-center gap-3 text-background/80 hover:text-background transition-colors group"
               >
-                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
                   <Mail className="w-5 h-5" />
                 </div>
                 <span>pizzanova264@gmail.com</span>
@@ -70,16 +70,16 @@ export function Footer() {
               
               <a 
                 href="tel:+919876542210" 
-                className="flex items-center gap-3 text-primary-foreground/80 hover:text-primary-foreground transition-colors group"
+                className="flex items-center gap-3 text-background/80 hover:text-background transition-colors group"
               >
-                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center group-hover:bg-gold/20 transition-colors">
                   <Phone className="w-5 h-5" />
                 </div>
                 <span>+91 98765 42210</span>
               </a>
               
-              <div className="flex items-start gap-3 text-primary-foreground/80">
-                <div className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center flex-shrink-0">
+              <div className="flex items-start gap-3 text-background/80">
+                <div className="w-10 h-10 rounded-full bg-background/10 flex items-center justify-center flex-shrink-0">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <span>123 Gourmet Street, Food Court Road, Mumbai - 400001, India</span>
@@ -87,12 +87,12 @@ export function Footer() {
             </div>
 
             {/* Operating Hours */}
-            <div className="pt-4 border-t border-primary-foreground/20">
+            <div className="pt-4 border-t border-background/20">
               <h3 className="font-serif font-semibold text-lg mb-4 flex items-center gap-2">
                 <Clock className="w-5 h-5 text-gold" />
                 Operating Hours
               </h3>
-              <div className="space-y-2 text-primary-foreground/80">
+              <div className="space-y-2 text-background/80">
                 <div className="flex items-center gap-2">
                   <Clock className="w-4 h-4 text-gold" />
                   <span>Mon-Thu: 11:00 AM - 10:00 PM</span>
@@ -106,7 +106,7 @@ export function Footer() {
           </AnimatedSection>
 
           {/* Contact Form */}
-          <AnimatedSection delay={0.1} className="bg-primary-foreground/5 rounded-2xl p-6 border border-primary-foreground/10">
+          <AnimatedSection delay={0.1} className="bg-background/5 rounded-2xl p-6 border border-background/10">
             <h3 className="font-serif font-semibold text-xl mb-6 text-center">Contact Us</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
@@ -114,7 +114,7 @@ export function Footer() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Name"
-                className="w-full px-4 py-3 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full px-4 py-3 rounded-xl bg-background/10 border border-background/20 text-background placeholder:text-background/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20"
                 required
               />
               <input
@@ -122,7 +122,7 @@ export function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email"
-                className="w-full px-4 py-3 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20"
+                className="w-full px-4 py-3 rounded-xl bg-background/10 border border-background/20 text-background placeholder:text-background/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20"
                 required
               />
               <textarea
@@ -130,7 +130,7 @@ export function Footer() {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Message"
                 rows={4}
-                className="w-full px-4 py-3 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20 resize-none"
+                className="w-full px-4 py-3 rounded-xl bg-background/10 border border-background/20 text-background placeholder:text-background/50 focus:border-gold focus:outline-none focus:ring-2 focus:ring-gold/20 resize-none"
                 required
               />
               <button
@@ -177,29 +177,29 @@ export function Footer() {
                 >
                   <Instagram className="w-6 h-6" />
                 </a>
-                <div className="text-primary-foreground/80">
+                <div className="text-background/80">
                   <p className="font-medium">@pizzanova264</p>
                   <p className="text-sm">Follow for updates & offers</p>
                 </div>
               </div>
             </div>
 
-            <p className="text-primary-foreground/70 text-sm flex items-center gap-1">
+            <p className="text-background/70 text-sm flex items-center gap-1">
               Made with <Heart className="w-4 h-4 fill-gold text-gold" /> in India
             </p>
           </AnimatedSection>
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-primary-foreground/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-primary-foreground/70 text-sm">
+        <div className="border-t border-background/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-background/70 text-sm">
             © 2026 Pizza Nova. All rights reserved. | Crafted with Passion Since 1988
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground text-sm transition-colors">
+            <a href="#" className="text-background/70 hover:text-background text-sm transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-primary-foreground/70 hover:text-primary-foreground text-sm transition-colors">
+            <a href="#" className="text-background/70 hover:text-background text-sm transition-colors">
               Terms of Service
             </a>
           </div>

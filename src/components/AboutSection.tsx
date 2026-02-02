@@ -1,5 +1,4 @@
 import chocolateCake from '@/assets/chocolate-cake.png';
-import packagingImage from '@/assets/packaging.jpg';
 import { AnimatedSection } from './AnimatedSection';
 
 const timeline = [
@@ -30,7 +29,7 @@ export function AboutSection() {
               alt="Pizza Nova Signature Dessert"
               className="w-full rounded-2xl shadow-elevated"
             />
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-gold/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-accent/20 rounded-full blur-3xl" />
           </AnimatedSection>
 
           {/* Content */}
@@ -47,7 +46,7 @@ export function AboutSection() {
               through generations, and a sprinkle of innovation that keeps our menu exciting.
             </p>
 
-            <div className="bg-muted/50 rounded-xl p-6 border-l-4 border-gold">
+            <div className="bg-muted/50 rounded-xl p-6 border-l-4 border-accent">
               <p className="text-foreground font-serif text-lg italic">
                 "Every dish tells a story. Every table holds a memory."
               </p>
@@ -70,7 +69,7 @@ export function AboutSection() {
           
           <div className="relative">
             {/* Timeline line */}
-            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-gold to-primary" />
+            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-accent to-primary" />
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {timeline.map((item, index) => (
@@ -94,7 +93,7 @@ export function AboutSection() {
               <div className="text-3xl font-bold text-primary">35+</div>
               <div className="text-sm text-muted-foreground">Years of Excellence</div>
             </div>
-            <div className="text-center p-6 bg-gold/10 rounded-xl border border-gold/20">
+            <div className="text-center p-6 bg-accent/10 rounded-xl border border-accent/20">
               <div className="text-3xl font-bold text-gold-accent">2000+</div>
               <div className="text-sm text-muted-foreground">Happy Customers</div>
             </div>
@@ -102,45 +101,9 @@ export function AboutSection() {
               <div className="text-3xl font-bold text-primary">50+</div>
               <div className="text-sm text-muted-foreground">Menu Items</div>
             </div>
-            <div className="text-center p-6 bg-gold/10 rounded-xl border border-gold/20">
+            <div className="text-center p-6 bg-accent/10 rounded-xl border border-accent/20">
               <div className="text-3xl font-bold text-gold-accent">100%</div>
               <div className="text-sm text-muted-foreground">Vegan</div>
-            </div>
-          </div>
-        </AnimatedSection>
-
-        {/* Packaging Section */}
-        <AnimatedSection delay={0.5} className="mt-16">
-          <div className="grid md:grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h3 className="text-2xl font-serif font-bold text-foreground">
-                Eco-Friendly Packaging
-              </h3>
-              <p className="text-muted-foreground">
-                We care about our planet as much as we care about our food. All our packaging 
-                is 100% eco-friendly, biodegradable, and designed to keep your food fresh and hot.
-              </p>
-              <ul className="space-y-2 text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                  Biodegradable boxes
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                  Recyclable cups & containers
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-primary" />
-                  Paper straws only
-                </li>
-              </ul>
-            </div>
-            <div className="relative">
-              <img 
-                src={packagingImage}
-                alt="Pizza Nova Eco-Friendly Packaging"
-                className="w-full rounded-2xl shadow-elevated"
-              />
             </div>
           </div>
         </AnimatedSection>

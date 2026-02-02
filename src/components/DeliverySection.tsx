@@ -1,5 +1,4 @@
-import { Truck, CreditCard, Wallet } from 'lucide-react';
-import packagingImage from '@/assets/packaging.jpg';
+import { Truck, CreditCard, Clock, Shield } from 'lucide-react';
 
 const paymentMethods = [
   { name: 'PhonePe', icon: '📱' },
@@ -26,8 +25,8 @@ export function DeliverySection() {
             </div>
 
             <div className="flex items-center gap-4 p-4 bg-card rounded-xl shadow-soft">
-              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
-                <Truck className="w-6 h-6 text-accent" />
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Truck className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">Home Delivery Available</h3>
@@ -54,17 +53,54 @@ export function DeliverySection() {
             </div>
           </div>
 
-          {/* Packaging Image */}
-          <div className="relative">
-            <img 
-              src={packagingImage}
-              alt="Pizza Nova Eco-Friendly Packaging"
-              className="w-full rounded-2xl shadow-elevated"
-            />
-            <div className="absolute bottom-4 left-4 right-4 bg-card/95 backdrop-blur-sm rounded-xl p-4">
-              <h3 className="font-semibold text-foreground mb-1">Eco-Friendly Packaging</h3>
-              <p className="text-sm text-muted-foreground">
-                Sustainable, branded boxes that keep your food fresh
+          {/* Delivery Features */}
+          <div className="space-y-6">
+            <div className="bg-card rounded-2xl p-6 shadow-soft">
+              <h3 className="text-xl font-serif font-bold text-foreground mb-4">
+                Why Order From Us?
+              </h3>
+              <div className="space-y-4">
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground">Quick Delivery</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Average delivery time of 30-45 minutes
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <Shield className="w-5 h-5 text-accent" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground">Safe & Hygienic</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Contactless delivery with sealed packaging
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Truck className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-foreground">Live Tracking</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Track your order in real-time
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+              <p className="text-center text-sm text-foreground">
+                <span className="font-semibold">🌱 Eco-Friendly:</span> All our packaging is 100% biodegradable
               </p>
             </div>
           </div>

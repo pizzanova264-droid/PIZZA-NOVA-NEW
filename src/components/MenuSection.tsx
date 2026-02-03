@@ -14,6 +14,7 @@ import sandwichPaneerPesto from '@/assets/menu/sandwich-paneer-pesto.jpg';
 import sandwichVeganClub from '@/assets/menu/sandwich-vegan-club.jpg';
 import sandwichCheeseCorn from '@/assets/menu/sandwich-cheese-corn.jpg';
 import sandwichMexican from '@/assets/menu/sandwich-mexican.jpg';
+import sandwichCaprese from '@/assets/menu/sandwich-caprese.jpg';
 
 // Burger imports
 import burgerSupreme from '@/assets/menu/burger-supreme.jpg';
@@ -45,6 +46,12 @@ import waffleMaple from '@/assets/menu/waffle-maple.jpg';
 import waffleBlueberry from '@/assets/menu/waffle-blueberry.jpg';
 import waffleCaramel from '@/assets/menu/waffle-caramel.jpg';
 import waffleRedVelvet from '@/assets/menu/waffle-red-velvet.jpg';
+
+// Brownie jar imports
+import brownieStrawberry from '@/assets/menu/brownie-strawberry.jpg';
+import brownieMolten from '@/assets/menu/brownie-molten.jpg';
+import brownieBananaNutella from '@/assets/menu/brownie-banana-nutella.jpg';
+import brownieTriple from '@/assets/menu/brownie-triple.jpg';
 
 // Dessert imports
 import brownie from '@/assets/menu/brownie.jpg';
@@ -83,7 +90,6 @@ import frankieVeg from '@/assets/menu/frankie-veg.jpg';
 import frankiePaneer from '@/assets/menu/frankie-paneer.jpg';
 import frankieCheese from '@/assets/menu/frankie-cheese.jpg';
 import frankieSchezwan from '@/assets/menu/frankie-schezwan.jpg';
-import frankieAloo from '@/assets/menu/frankie-aloo.jpg';
 
 // Taco imports
 import tacoVeg from '@/assets/menu/taco-veg.jpg';
@@ -91,26 +97,10 @@ import tacoPaneer from '@/assets/menu/taco-paneer.jpg';
 import tacoPotato from '@/assets/menu/taco-potato.jpg';
 import tacoBean from '@/assets/menu/taco-bean.jpg';
 
-// Wrap imports
-import wrapPaneer from '@/assets/menu/wrap-paneer.jpg';
-import wrapFalafel from '@/assets/menu/wrap-falafel.jpg';
-import wrapGarden from '@/assets/menu/wrap-garden.jpg';
-import wrapBurrito from '@/assets/menu/wrap-burrito.jpg';
-
 // Drink imports
 import drinkCola from '@/assets/menu/drink-cola.jpg';
 import drinkPepsi from '@/assets/menu/drink-pepsi.jpg';
 import drinkDew from '@/assets/menu/drink-dew.jpg';
-
-// More pastry imports
-import pastryBlueberry from '@/assets/menu/pastry-blueberry.jpg';
-import pastryMango from '@/assets/menu/pastry-mango.jpg';
-import pastryTiramisu from '@/assets/menu/pastry-tiramisu.jpg';
-
-// More waffle imports
-import waffleBanana from '@/assets/menu/waffle-banana.jpg';
-import waffleBerry from '@/assets/menu/waffle-berry.jpg';
-import waffleVanilla from '@/assets/menu/waffle-vanilla.jpg';
 
 const categories = [
   { id: 'pizzas', name: '🍕 Pizzas', emoji: '🍕' },
@@ -118,11 +108,11 @@ const categories = [
   { id: 'burgers', name: '🍔 Burgers', emoji: '🍔' },
   { id: 'frankies', name: '🌯 Frankies', emoji: '🌯' },
   { id: 'tacos', name: '🌮 Tacos', emoji: '🌮' },
-  { id: 'wraps', name: '🥙 Veg Wraps', emoji: '🥙' },
   { id: 'fries', name: '🍟 Fries & Snacks', emoji: '🍟' },
   { id: 'nachos', name: '🧀 Nachos', emoji: '🧀' },
   { id: 'pasta', name: '🍝 Pasta & Noodles', emoji: '🍝' },
   { id: 'waffles', name: '🧇 Waffles', emoji: '🧇' },
+  { id: 'brownies', name: '🍫 Brownie Jars', emoji: '🍫' },
   { id: 'desserts', name: '🍰 Desserts', emoji: '🍰' },
   { id: 'icecream', name: '🍨 Ice Cream', emoji: '🍨' },
   { id: 'shakes', name: '🥤 Milkshakes', emoji: '🥤' },
@@ -145,6 +135,7 @@ const menuItems: Record<string, Array<{ name: string; description: string; price
     { name: 'Vegan Club Sandwich', description: 'Triple-decker with plant-based proteins, fresh lettuce, tomato, and vegan mayo', price: 219, image: sandwichVeganClub },
     { name: 'Cheese & Corn Melt', description: 'Gooey melted vegan cheese with sweet corn kernels on perfectly toasted bread', price: 189, image: sandwichCheeseCorn },
     { name: 'Spicy Mexican Veg', description: 'Jalapeños, black beans, corn salsa, and avocado with melted cheese', price: 209, image: sandwichMexican },
+    { name: 'Caprese Sandwich', description: 'Fresh mozzarella, tomato, basil leaves on artisan bread with pesto drizzle', price: 229, image: sandwichCaprese, badge: 'New' },
   ],
   burgers: [
     { name: 'Veg Supreme Burger', description: 'Thick plant-based patty with melted cheese, fresh lettuce, tomato, and special sauce', price: 199, image: burgerSupreme },
@@ -176,6 +167,12 @@ const menuItems: Record<string, Array<{ name: string; description: string; price
     { name: 'Blueberry Delight', description: 'Fresh blueberries, whipped cream, and tangy blueberry sauce drizzle', price: 229, image: waffleBlueberry },
     { name: 'Caramel Cinnamon', description: 'Warm caramel sauce, cinnamon sugar, and butter pat topping', price: 209, image: waffleCaramel, badge: 'New' },
     { name: 'Red Velvet Dream', description: 'Rich red velvet waffle with cream cheese glaze and raspberry', price: 259, image: waffleRedVelvet, badge: 'Premium' },
+  ],
+  brownies: [
+    { name: 'Strawberry Brownie Choco Jar', description: 'Rich brownie layered with fresh strawberries, finished with warm melted chocolate', price: 189, image: brownieStrawberry, badge: 'Bestseller' },
+    { name: 'Molten Chocolate Brownie', description: 'Warm, gooey chocolate brownie served with rich chocolate sauce', price: 169, image: brownieMolten, badge: 'Premium' },
+    { name: 'Banana Nutella Brownie Jar', description: 'Soft brownie layered with banana and Nutella drizzle', price: 179, image: brownieBananaNutella, badge: 'Popular' },
+    { name: 'Triple Chocolate Brownie Jar', description: 'Brownie with dark, milk & white chocolate layers', price: 199, image: brownieTriple, badge: 'Indulgent' },
   ],
   desserts: [
     { name: 'Brownie', description: 'Fudgy chocolate brownie with vanilla ice cream and chocolate sauce', price: 149, image: brownie },
@@ -214,19 +211,12 @@ const menuItems: Record<string, Array<{ name: string; description: string; price
     { name: 'Paneer Frankie', description: 'Spiced paneer cubes with onions, peppers, and mint chutney', price: 129, image: frankiePaneer, badge: 'Popular' },
     { name: 'Cheese Frankie', description: 'Melted cheese with veggies wrapped in crispy paratha', price: 119, image: frankieCheese },
     { name: 'Schezwan Frankie', description: 'Indo-Chinese spicy schezwan sauce with crispy veggies', price: 129, image: frankieSchezwan, badge: 'Spicy' },
-    { name: 'Aloo Tikki Frankie', description: 'Crispy potato patty with tangy tamarind and coriander chutney', price: 109, image: frankieAloo },
   ],
   tacos: [
     { name: 'Veg Taco', description: 'Crispy shell with seasoned veggies, lettuce, cheese, and salsa', price: 119, image: tacoVeg },
     { name: 'Paneer Taco', description: 'Grilled paneer with pico de gallo and sour cream', price: 149, image: tacoPaneer, badge: 'Bestseller' },
     { name: 'Potato Crunch Taco', description: 'Crispy potato filling with jalapeños and chipotle sauce', price: 129, image: tacoPotato },
     { name: 'Bean & Cheese Taco', description: 'Refried beans with melted cheese and fresh salsa verde', price: 139, image: tacoBean },
-  ],
-  wraps: [
-    { name: 'Paneer Tikka Wrap', description: 'Grilled paneer tikka with mint mayo in whole wheat wrap', price: 169, image: wrapPaneer, badge: 'Popular' },
-    { name: 'Falafel Wrap', description: 'Crispy falafel with hummus, tahini, and fresh vegetables', price: 179, image: wrapFalafel },
-    { name: 'Garden Fresh Wrap', description: 'Mixed greens, avocado, cucumber, and ranch dressing', price: 149, image: wrapGarden },
-    { name: 'Mexican Burrito Wrap', description: 'Rice, beans, corn, cheese, and spicy salsa in large tortilla', price: 199, image: wrapBurrito, badge: 'Filling' },
   ],
   drinks: [
     { name: 'Coca Cola', description: 'Chilled classic cola (300ml)', price: 49, image: drinkCola },

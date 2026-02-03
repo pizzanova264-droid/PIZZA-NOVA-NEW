@@ -91,11 +91,6 @@ import frankiePaneer from '@/assets/menu/frankie-paneer.jpg';
 import frankieCheese from '@/assets/menu/frankie-cheese.jpg';
 import frankieSchezwan from '@/assets/menu/frankie-schezwan.jpg';
 
-// Taco imports
-import tacoVeg from '@/assets/menu/taco-veg.jpg';
-import tacoPaneer from '@/assets/menu/taco-paneer.jpg';
-import tacoPotato from '@/assets/menu/taco-potato.jpg';
-import tacoBean from '@/assets/menu/taco-bean.jpg';
 
 // Drink imports
 import drinkCola from '@/assets/menu/drink-cola.jpg';
@@ -107,7 +102,6 @@ const categories = [
   { id: 'sandwiches', name: '🥪 Sandwiches', emoji: '🥪' },
   { id: 'burgers', name: '🍔 Burgers', emoji: '🍔' },
   { id: 'frankies', name: '🌯 Frankies', emoji: '🌯' },
-  { id: 'tacos', name: '🌮 Tacos', emoji: '🌮' },
   { id: 'fries', name: '🍟 Fries & Snacks', emoji: '🍟' },
   { id: 'nachos', name: '🧀 Nachos', emoji: '🧀' },
   { id: 'pasta', name: '🍝 Pasta & Noodles', emoji: '🍝' },
@@ -211,12 +205,6 @@ const menuItems: Record<string, Array<{ name: string; description: string; price
     { name: 'Paneer Frankie', description: 'Spiced paneer cubes with onions, peppers, and mint chutney', price: 129, image: frankiePaneer, badge: 'Popular' },
     { name: 'Cheese Frankie', description: 'Melted cheese with veggies wrapped in crispy paratha', price: 119, image: frankieCheese },
     { name: 'Schezwan Frankie', description: 'Indo-Chinese spicy schezwan sauce with crispy veggies', price: 129, image: frankieSchezwan, badge: 'Spicy' },
-  ],
-  tacos: [
-    { name: 'Veg Taco', description: 'Crispy shell with seasoned veggies, lettuce, cheese, and salsa', price: 119, image: tacoVeg },
-    { name: 'Paneer Taco', description: 'Grilled paneer with pico de gallo and sour cream', price: 149, image: tacoPaneer, badge: 'Bestseller' },
-    { name: 'Potato Crunch Taco', description: 'Crispy potato filling with jalapeños and chipotle sauce', price: 129, image: tacoPotato },
-    { name: 'Bean & Cheese Taco', description: 'Refried beans with melted cheese and fresh salsa verde', price: 139, image: tacoBean },
   ],
   drinks: [
     { name: 'Coca Cola', description: 'Chilled classic cola (300ml)', price: 49, image: drinkCola },

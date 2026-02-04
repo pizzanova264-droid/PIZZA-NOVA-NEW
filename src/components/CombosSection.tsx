@@ -1,3 +1,5 @@
+import { useCart } from '@/hooks/useCart';
+import { toast } from '@/hooks/use-toast';
 import comboPizza from '@/assets/menu/combo-pizza.jpg';
 import comboBurger from '@/assets/menu/combo-burger.jpg';
 import comboWaffle from '@/assets/menu/combo-waffle.jpg';
@@ -5,6 +7,7 @@ import comboFamily from '@/assets/menu/combo-family.jpg';
 
 const combos = [
   {
+    id: 'combo-pizza',
     name: 'Pizza Combo',
     description: 'Any Pizza + Fries + Soft Drink',
     originalPrice: 478,
@@ -13,6 +16,7 @@ const combos = [
     savings: 79,
   },
   {
+    id: 'combo-burger',
     name: 'Burger Combo',
     description: 'Burger + Fries + Milkshake',
     originalPrice: 477,
@@ -21,6 +25,7 @@ const combos = [
     savings: 128,
   },
   {
+    id: 'combo-dessert',
     name: 'Dessert Combo',
     description: 'Waffle + Ice Cream Scoop',
     originalPrice: 348,
@@ -29,6 +34,7 @@ const combos = [
     savings: 49,
   },
   {
+    id: 'combo-family',
     name: 'Family Combo',
     description: '2 Large Pizzas + 4 Mocktails',
     originalPrice: 898,
@@ -39,6 +45,22 @@ const combos = [
 ];
 
 export function CombosSection() {
+  const { addToCart, setIsCartOpen } = useCart();
+
+  const handleAddToCart = (combo: typeof combos[0]) => {
+    addToCart({
+      id: combo.id,
+      name: combo.name,
+      price: combo.price,
+      image: combo.image,
+    });
+    toast({
+      title: '🎉 Added to Cart!',
+      description: `${combo.name} - Save ₹${combo.savings}!`,
+    });
+    setIsCartOpen(true);
+  };
+
   return (
     <section id="combos" className="section-padding bg-background">
       <div className="container-main">
@@ -53,7 +75,7 @@ export function CombosSection() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {combos.map((combo, index) => (
             <div 
-              key={combo.name}
+              key={combo.id}
               className="card-menu group"
               style={{ animationDelay: `${index * 0.1}s` }}
             >
@@ -74,7 +96,10 @@ export function CombosSection() {
                   <span className="price-tag">₹{combo.price}</span>
                   <span className="text-sm text-muted-foreground line-through">₹{combo.originalPrice}</span>
                 </div>
-                <button className="w-full mt-3 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors">
+                <button 
+                  onClick={() => handleAddToCart(combo)}
+                  className="w-full mt-3 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-full hover:bg-primary/90 transition-colors"
+                >
                   Add to Cart
                 </button>
               </div>

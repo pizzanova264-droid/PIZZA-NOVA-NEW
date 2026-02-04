@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -26,9 +27,9 @@ Key information about Pizza Nova:
 Menu categories:
 - Pizzas (Margherita, Farm Fresh, Paneer Tikka, Vegan Supreme, Truffle Arugula)
 - Waffles (8 varieties: Chocolate, Strawberry, Nutella, Oreo, Maple, Blueberry, Caramel, Red Velvet)
-- Sandwiches (5 types)
-- Frankies (5 types)
-- Tacos (4 types)
+- Sandwiches (6 types including Caprese)
+- Frankies (4 types)
+- Brownies (4 types including Strawberry Choco Jar)
 - Mocktails (6 flavors)
 - Milkshakes, Ice Cream, Pasta, Desserts
 
@@ -40,6 +41,31 @@ serve(async (req) => {
   }
 
   try {
+    // Require authentication
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(
+        JSON.stringify({ error: "Authentication required. Please sign in to chat." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      return new Response(
+        JSON.stringify({ error: "Invalid session. Please sign in again." }),
+        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
@@ -77,7 +103,6 @@ serve(async (req) => {
         );
       }
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
       throw new Error("AI service error");
     }
 
@@ -89,7 +114,6 @@ serve(async (req) => {
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Chat error:", error);
     return new Response(
       JSON.stringify({ 
         error: error instanceof Error ? error.message : "Something went wrong. Please try again!" 

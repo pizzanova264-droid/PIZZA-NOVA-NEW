@@ -70,7 +70,7 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
 
       recognition.onerror = (event: any) => {
         setIsListening(false);
-        console.error('Speech recognition error:', event.error);
+        // Handle speech recognition error silently in production
         
         if (event.error === 'not-allowed') {
           toast({
@@ -93,8 +93,7 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
       };
 
       recognition.start();
-    } catch (error) {
-      console.error('Failed to start speech recognition:', error);
+    } catch {
       toast({
         title: 'Voice Search Error',
         description: 'Failed to start voice recognition. Please try again.',

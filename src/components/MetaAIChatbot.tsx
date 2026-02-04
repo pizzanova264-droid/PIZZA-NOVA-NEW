@@ -62,8 +62,7 @@ export function MetaAIChatbot() {
       };
 
       setMessages(prev => [...prev, aiMessage]);
-    } catch (error) {
-      console.error('Chat error:', error);
+    } catch {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',

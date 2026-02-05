@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { WhyChooseUs } from '@/components/WhyChooseUs';
@@ -6,6 +5,8 @@ import { RecentlyViewed } from '@/components/RecentlyViewed';
 import { MenuSection } from '@/components/MenuSection';
 import { PizzaCustomizer } from '@/components/PizzaCustomizer';
 import { CombosSection } from '@/components/CombosSection';
+import { FlavorPersonalityMatcher } from '@/components/FlavorPersonalityMatcher';
+import { PizzaOriginStory } from '@/components/PizzaOriginStory';
 import { CouponsSection } from '@/components/CouponsSection';
 import { AboutSection } from '@/components/AboutSection';
 import { ReviewsSection } from '@/components/ReviewsSection';
@@ -15,7 +16,7 @@ import { VoiceSearch } from '@/components/VoiceSearch';
 import { MetaAIChatbot } from '@/components/MetaAIChatbot';
 
 const Index = () => {
-  const handleVoiceSearch = (query: string) => {
+  const handleVoiceSearch = () => {
     const menuSection = document.getElementById('menu');
     if (menuSection) {
       menuSection.scrollIntoView({ behavior: 'smooth' });
@@ -32,6 +33,8 @@ const Index = () => {
         <MenuSection />
         <PizzaCustomizer />
         <CombosSection />
+        <FlavorPersonalityMatcher />
+        <PizzaOriginStory />
         <CouponsSection />
         <AboutSection />
         <ReviewsSection />

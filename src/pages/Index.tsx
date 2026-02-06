@@ -31,10 +31,10 @@ const Index = () => {
         <WhyChooseUs />
         <RecentlyViewed />
         <MenuSection />
+        <PizzaOriginStory />
         <PizzaCustomizer />
         <CombosSection />
         <FlavorPersonalityMatcher />
-        <PizzaOriginStory />
         <CouponsSection />
         <AboutSection />
         <ReviewsSection />

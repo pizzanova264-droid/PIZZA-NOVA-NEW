@@ -222,7 +222,7 @@ export function MenuSection() {
         {/* Header */}
         <div className="text-center mb-8 space-y-4">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-            Our Delicious Menu
+            🔍 Find My Craving
           </h2>
           <div className="divider-decorative" />
           <p className="text-muted-foreground max-w-2xl mx-auto">

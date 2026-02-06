@@ -121,6 +121,7 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
         aria-label="Voice search"
       >
         <Mic className="w-6 h-6" />
+        <span className="sr-only">Talk to Nova</span>
       </motion.button>
 
       {/* Listening Modal */}
@@ -158,7 +159,7 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
               </div>
 
               <div>
-                <h2 className="text-2xl font-serif font-bold text-foreground">Listening...</h2>
+                <h2 className="text-2xl font-serif font-bold text-foreground">Talk to Nova 🎙️</h2>
                 <p className="text-muted-foreground mt-2">Say the dish you're looking for</p>
               </div>
 

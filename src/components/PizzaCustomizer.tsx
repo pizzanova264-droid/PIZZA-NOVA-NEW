@@ -73,7 +73,7 @@ export function PizzaCustomizer() {
         {/* Header */}
         <div className="text-center mb-12 space-y-4">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-            🛠️ Customize Your Pizza
+            🛠️ Create My Signature
           </h2>
           <div className="divider-decorative" />
           <p className="text-muted-foreground">

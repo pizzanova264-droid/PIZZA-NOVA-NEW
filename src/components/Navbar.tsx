@@ -10,7 +10,7 @@ import logo from '@/assets/pizza-nova-logo.webp';
 const navLinks = [
   { name: 'Home', href: '#hero' },
   { name: 'Menu', href: '#menu' },
-  { name: 'Customize', href: '#customize' },
+  { name: 'Create', href: '#customize' },
   { name: 'Combos', href: '#combos' },
   { name: 'About', href: '#about' },
   { name: 'Contact', href: '#contact' },

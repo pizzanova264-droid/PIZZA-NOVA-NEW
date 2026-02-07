@@ -192,7 +192,7 @@ const levels: Level[] = [
         { text: '🧀 Paneer', correct: true },
         { text: '🫑 Capsicum', correct: true },
         { text: '🌽 Sweet corn', correct: true },
-        { text: '🥓 Pepperoni', correct: false },
+        { text: '🍖 Salami', correct: false },
       ],
     },
     quizzes: [

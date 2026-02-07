@@ -98,10 +98,47 @@ export function DeliverySection() {
               </div>
             </div>
             
-            <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+            <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 mb-6">
               <p className="text-center text-sm text-foreground">
                 <span className="font-semibold">🌱 Eco-Friendly:</span> All our packaging is 100% biodegradable
               </p>
+            </div>
+
+            {/* Order via Delivery Partners */}
+            <div className="bg-card rounded-2xl p-6 shadow-soft">
+              <h3 className="text-lg font-serif font-bold text-foreground mb-4">
+                Order via Delivery Partners
+              </h3>
+              <div className="grid grid-cols-2 gap-4">
+                <a
+                  href="https://www.swiggy.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-500/10 rounded-xl border-2 border-orange-200 dark:border-orange-500/30 hover:border-orange-400 hover:shadow-md transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                    S
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground group-hover:text-orange-600 transition-colors">Swiggy</p>
+                    <p className="text-xs text-muted-foreground">Order Now →</p>
+                  </div>
+                </a>
+                <a
+                  href="https://www.zomato.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-500/10 rounded-xl border-2 border-red-200 dark:border-red-500/30 hover:border-red-400 hover:shadow-md transition-all group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-lg shrink-0">
+                    Z
+                  </div>
+                  <div>
+                    <p className="font-semibold text-foreground group-hover:text-red-600 transition-colors">Zomato</p>
+                    <p className="text-xs text-muted-foreground">Order Now →</p>
+                  </div>
+                </a>
+              </div>
             </div>
           </div>
         </div>

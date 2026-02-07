@@ -72,8 +72,8 @@ export function PizzaCustomizer() {
       <div className="container-main">
         {/* Header */}
         <div className="text-center mb-12 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-            🛠️ Create My Signature
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground tracking-tight">
+            Create My <span className="text-primary italic">Signature</span>
           </h2>
           <div className="divider-decorative" />
           <p className="text-muted-foreground">

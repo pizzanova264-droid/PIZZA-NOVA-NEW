@@ -34,7 +34,7 @@ export function Navbar() {
       <div className="container-main">
         <div className="flex items-center justify-between h-16 md:h-20 px-4">
           <Link to="/" className="flex items-center gap-2">
-            <img src={logo} alt="Pizza Nova" className="h-12 md:h-14 w-auto" />
+            <img src={logo} alt="Pizza Nova" className="h-14 md:h-16 w-auto" />
           </Link>
 
           <div className="hidden md:flex items-center gap-8">

@@ -196,10 +196,10 @@ export function Footer() {
             © 2026 Pizza Nova. All rights reserved. | Crafted with Passion Since 1988
           </p>
           <div className="flex items-center gap-4">
-            <a href="#" className="text-foreground/70 hover:text-foreground text-sm transition-colors">
+            <a href="/privacy-policy" className="text-foreground/70 hover:text-foreground text-sm transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-foreground/70 hover:text-foreground text-sm transition-colors">
+            <a href="/terms-of-service" className="text-foreground/70 hover:text-foreground text-sm transition-colors">
               Terms of Service
             </a>
           </div>

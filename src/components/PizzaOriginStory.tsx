@@ -5,34 +5,11 @@ import { AnimatedSection } from './AnimatedSection';
 import { toast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-
-// ── Types ──────────────────────────────────────────────────────
-interface TaskOption {
-  text: string;
-  correct: boolean;
-}
-
-interface QuizQuestion {
-  question: string;
-  options: { text: string; correct: boolean }[];
-}
-
-interface Level {
-  id: number;
-  title: string;
-  location: string;
-  emoji: string;
-  scene: string;
-  learningObjective: string;
-  task: { instruction: string; options: TaskOption[] };
-  quizzes: QuizQuestion[];
-  feedback: string;
-  maxScore: number;
-}
-
-type Rank = { title: string; emoji: string; coupon: string; discount: string };
+import { levelBank, type Level } from '@/data/pizzaQuizBank';
 
 // ── Scoring & Ranking ──────────────────────────────────────────
+type Rank = { title: string; emoji: string; coupon: string; discount: string };
+
 const RANKS: Rank[] = [
   { title: 'Beginner Explorer', emoji: '🌱', coupon: '', discount: '' },
   { title: 'Pizza Scholar', emoji: '📚', coupon: 'SCHOLAR15', discount: '15% off' },
@@ -47,265 +24,22 @@ function getRank(score: number): Rank {
   return RANKS[0];
 }
 
-// ── Level Data ─────────────────────────────────────────────────
-const levels: Level[] = [
-  {
-    id: 1,
-    title: 'Italy — Birth of Pizza',
-    location: 'Naples, Italy – 1889',
-    emoji: '🇮🇹',
-    scene:
-      'Pizza began as simple flatbread for common people in Italy. When Queen Margherita visited Naples, a chef named Raffaele Esposito was asked to prepare a special dish for her. He created a pizza using ingredients that represented the Italian flag.\n\nYou will help choose the ingredients and understand why this pizza became famous worldwide.',
-    learningObjective:
-      'Understand the historical origin of pizza and the creation of Margherita pizza.',
-    task: {
-      instruction: 'Select the ingredients used in the original Margherita pizza:',
-      options: [
-        { text: '🍅 Tomato Sauce', correct: true },
-        { text: '🧀 Mozzarella Cheese', correct: true },
-        { text: '🌿 Basil Leaves', correct: true },
-        { text: '🍄 Mushrooms', correct: false },
-      ],
-    },
-    quizzes: [
-      {
-        question: 'Who created the Margherita pizza?',
-        options: [
-          { text: 'Marco Polo', correct: false },
-          { text: 'Raffaele Esposito', correct: true },
-          { text: 'Leonardo da Vinci', correct: false },
-        ],
-      },
-      {
-        question: 'Which country is the origin of pizza?',
-        options: [
-          { text: 'France', correct: false },
-          { text: 'Italy', correct: true },
-          { text: 'Spain', correct: false },
-        ],
-      },
-      {
-        question: 'What do the Margherita pizza colors represent?',
-        options: [
-          { text: 'The French flag', correct: false },
-          { text: 'The Italian flag', correct: true },
-          { text: 'A rainbow', correct: false },
-        ],
-      },
-      {
-        question: 'When was the Margherita pizza first created?',
-        options: [
-          { text: '1789', correct: false },
-          { text: '1889', correct: true },
-          { text: '1989', correct: false },
-        ],
-      },
-      {
-        question: 'What was pizza originally made for?',
-        options: [
-          { text: 'Royalty only', correct: false },
-          { text: 'Common people as simple flatbread', correct: true },
-          { text: 'Military rations', correct: false },
-        ],
-      },
-    ],
-    feedback:
-      'The Margherita pizza uses tomato (red), mozzarella (white), and basil (green), representing the Italian national flag. This dish was created to honor Queen Margherita of Italy!',
-    maxScore: 20,
-  },
-  {
-    id: 2,
-    title: 'USA — Global Expansion',
-    location: 'New York, USA – 1905',
-    emoji: '🇺🇸',
-    scene:
-      "Italian immigrants brought pizza to the United States. The first American pizzeria opened in New York. Over time, pizza became larger, cheesier, and popular across the country.\n\nNow, you explore how pizza changed in America.",
-    learningObjective:
-      'Learn how pizza evolved after reaching the United States.',
-    task: {
-      instruction: 'Choose what changed in American-style pizza:',
-      options: [
-        { text: '🍞 Bigger crust', correct: true },
-        { text: '🧀 Extra cheese', correct: true },
-        { text: '🍫 Sweet chocolate topping', correct: false },
-        { text: '🍕 Slice serving style', correct: true },
-      ],
-    },
-    quizzes: [
-      {
-        question: "Where did the first U.S. pizzeria open?",
-        options: [
-          { text: 'Chicago', correct: false },
-          { text: 'New York', correct: true },
-          { text: 'Texas', correct: false },
-        ],
-      },
-      {
-        question: 'Why did pizza become popular in the USA?',
-        options: [
-          { text: 'Easy to share and affordable', correct: true },
-          { text: 'Very expensive', correct: false },
-          { text: 'Only for kings', correct: false },
-        ],
-      },
-      {
-        question: "What was America's first pizzeria called?",
-        options: [
-          { text: "Papa John's", correct: false },
-          { text: "Lombardi's", correct: true },
-          { text: "Domino's", correct: false },
-        ],
-      },
-      {
-        question: 'What year did the first US pizzeria open?',
-        options: [
-          { text: '1905', correct: true },
-          { text: '1920', correct: false },
-          { text: '1950', correct: false },
-        ],
-      },
-      {
-        question: 'Which pizza style originated in the USA?',
-        options: [
-          { text: 'Neapolitan thin crust', correct: false },
-          { text: 'Deep-dish pizza', correct: true },
-          { text: 'Tandoori pizza', correct: false },
-        ],
-      },
-    ],
-    feedback:
-      'American pizza introduced large slices, heavy cheese, and street-style serving, making it affordable and popular. The deep-dish style from Chicago became an American icon!',
-    maxScore: 20,
-  },
-  {
-    id: 3,
-    title: 'India — Localization & Fusion',
-    location: 'India – Modern Era',
-    emoji: '🇮🇳',
-    scene:
-      'Pizza arrived in India and adapted to local tastes. Ingredients like paneer, capsicum, corn, and spicy sauces were added to match Indian flavor preferences.\n\nNow you will localize pizza for Indian customers.',
-    learningObjective:
-      'Understand how global food adapts to regional culture.',
-    task: {
-      instruction: 'Select Indian fusion toppings:',
-      options: [
-        { text: '🧀 Paneer', correct: true },
-        { text: '🫑 Capsicum', correct: true },
-        { text: '🌽 Sweet corn', correct: true },
-        { text: '🍖 Salami', correct: false },
-      ],
-    },
-    quizzes: [
-      {
-        question: 'Which ingredient is commonly used in Indian pizza?',
-        options: [
-          { text: 'Paneer', correct: true },
-          { text: 'Fish oil', correct: false },
-          { text: 'Blue cheese', correct: false },
-        ],
-      },
-      {
-        question: 'What does food localization mean?',
-        options: [
-          { text: 'Copy food exactly', correct: false },
-          { text: 'Adapt food to local taste', correct: true },
-          { text: 'Remove all flavor', correct: false },
-        ],
-      },
-      {
-        question: 'Which spice blend is popular on Indian pizzas?',
-        options: [
-          { text: 'Oregano only', correct: false },
-          { text: 'Tandoori masala', correct: true },
-          { text: 'Cinnamon sugar', correct: false },
-        ],
-      },
-      {
-        question: 'What year did major pizza chains enter India?',
-        options: [
-          { text: '1976', correct: false },
-          { text: '1996', correct: true },
-          { text: '2010', correct: false },
-        ],
-      },
-      {
-        question: 'Why do Indian pizzas often skip beef/pork?',
-        options: [
-          { text: 'Cost reasons', correct: false },
-          { text: 'Cultural & religious preferences', correct: true },
-          { text: 'Taste preference only', correct: false },
-        ],
-      },
-    ],
-    feedback:
-      'Indian pizzas mix international recipes with local spices and vegetables to suit regional taste. Paneer tikka, tandoori flavors, and desi sauces created a whole new pizza culture!',
-    maxScore: 20,
-  },
-  {
-    id: 4,
-    title: 'Future — AI Pizza Era',
-    location: 'Future – Pizza Nova Lab',
-    emoji: '🚀',
-    scene:
-      'In the future, pizza is designed using artificial intelligence. Pizza Nova uses smart systems to analyze mood, health, and personality to create personalized pizzas.\n\nNow you enter the future kitchen.',
-    learningObjective:
-      'Understand the role of technology in modern food systems.',
-    task: {
-      instruction: 'Select features of AI pizza:',
-      options: [
-        { text: '🧠 Mood-based recipes', correct: true },
-        { text: '📊 Nutrition tracking', correct: true },
-        { text: '✨ Personality matching', correct: true },
-        { text: '📝 Manual paper ordering', correct: false },
-      ],
-    },
-    quizzes: [
-      {
-        question: 'What does AI help with in food systems?',
-        options: [
-          { text: 'Guess randomly', correct: false },
-          { text: 'Personalize experience', correct: true },
-          { text: 'Ignore customers', correct: false },
-        ],
-      },
-      {
-        question: 'What is smart pizza?',
-        options: [
-          { text: 'Fixed menu', correct: false },
-          { text: 'Personalized pizza using data', correct: true },
-          { text: 'Only cheese', correct: false },
-        ],
-      },
-      {
-        question: 'Which technology helps track nutrition in real time?',
-        options: [
-          { text: 'Pen and paper', correct: false },
-          { text: 'AI & machine learning', correct: true },
-          { text: 'Guesswork', correct: false },
-        ],
-      },
-      {
-        question: 'How can AI improve customer satisfaction?',
-        options: [
-          { text: 'Slower service', correct: false },
-          { text: 'Personalized recommendations', correct: true },
-          { text: 'Removing menu options', correct: false },
-        ],
-      },
-      {
-        question: 'What does Pizza Nova use AI for?',
-        options: [
-          { text: 'Replacing chefs', correct: false },
-          { text: 'Matching pizzas to personality & mood', correct: true },
-          { text: 'Making pizza more expensive', correct: false },
-        ],
-      },
-    ],
-    feedback:
-      'AI allows users to receive pizzas based on lifestyle, health, and taste using technology. Pizza Nova is at the forefront of this delicious revolution!',
-    maxScore: 20,
-  },
-];
+// ── Shuffle Utility ────────────────────────────────────────────
+function shuffleArray<T>(arr: T[]): T[] {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+function getShuffledLevels(): Level[] {
+  return levelBank.map(level => ({
+    ...level,
+    quizzes: shuffleArray(level.quizzes).slice(0, 5),
+  }));
+}
 
 // ── Subcomponents ──────────────────────────────────────────────
 function LevelProgressBar({ currentLevel, totalLevels }: { currentLevel: number; totalLevels: number }) {
@@ -335,6 +69,7 @@ function LevelProgressBar({ currentLevel, totalLevels }: { currentLevel: number;
 
 // ── Main Component ─────────────────────────────────────────────
 export function PizzaOriginStory() {
+  const [levels, setLevels] = useState<Level[]>(() => getShuffledLevels());
   const [isStarted, setIsStarted] = useState(false);
   const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
   const [phase, setPhase] = useState<'scene' | 'task' | 'quiz' | 'feedback' | 'result'>('scene');
@@ -348,22 +83,7 @@ export function PizzaOriginStory() {
 
   const level = levels[currentLevelIdx];
   const isLastLevel = currentLevelIdx === levels.length - 1;
-  const overallProgress = ((currentLevelIdx) / levels.length) * 100;
 
-  // Load progress from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('pizza-origin-progress');
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.completed) {
-          // Don't auto-resume if completed, let them start fresh
-        }
-      } catch { /* ignore */ }
-    }
-  }, []);
-
-  // Save progress
   useEffect(() => {
     if (isStarted) {
       localStorage.setItem('pizza-origin-progress', JSON.stringify({
@@ -375,6 +95,7 @@ export function PizzaOriginStory() {
   }, [currentLevelIdx, score, levelScores, isStarted]);
 
   const startGame = () => {
+    setLevels(getShuffledLevels());
     setIsStarted(true);
     setPhase('scene');
     setCurrentLevelIdx(0);
@@ -395,7 +116,7 @@ export function PizzaOriginStory() {
   const submitTask = () => {
     let pts = 0;
     level.task.options.forEach((opt, i) => {
-      if (taskSelections[i] === opt.correct) pts += 2.5; // 10 points total for correct task
+      if (taskSelections[i] === opt.correct) pts += 2.5;
     });
     const taskScore = Math.round(pts);
     setCurrentLevelScore(taskScore);
@@ -413,7 +134,7 @@ export function PizzaOriginStory() {
 
     const isCorrect = level.quizzes[currentQuizIdx].options[optionIdx].correct;
     if (isCorrect) {
-      const pts = 2; // 5 quizzes × 2 = 10 points
+      const pts = 2;
       setCurrentLevelScore(s => s + pts);
       setScore(s => s + pts);
     }
@@ -457,7 +178,7 @@ export function PizzaOriginStory() {
             Interactive Learning Module
           </span>
           <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
-            Pizza <span className="text-primary">Origin Story</span> Game
+            Pizza <span className="text-primary">Adventure</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Travel through 4 eras of pizza history. Answer quizzes, earn points, and unlock exclusive rewards!
@@ -480,7 +201,7 @@ export function PizzaOriginStory() {
                 </div>
                 <h3 className="text-2xl font-serif font-bold mb-4">Begin Your Pizza Adventure!</h3>
                 <p className="text-muted-foreground mb-6">
-                  Journey through 4 levels — Italy, USA, India, and the Future — answering quizzes and completing interactive tasks to earn up to 80 points.
+                  Journey through 4 levels — Italy, USA, India, and the Future — answering quizzes and completing interactive tasks to earn up to 80 points. Questions change every time you play!
                 </p>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
@@ -584,7 +305,7 @@ export function PizzaOriginStory() {
                     disabled={!taskSelections.some(Boolean)}
                     className="btn-hero-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    👉 Confirm Selection <ChevronRight className="w-5 h-5" />
+                    Confirm Selection <ChevronRight className="w-5 h-5" />
                   </button>
                 </div>
               </motion.div>
@@ -601,7 +322,7 @@ export function PizzaOriginStory() {
               >
                 <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-primary-foreground">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-serif font-bold">📝 Quiz — Level {level.id}</h3>
+                    <h3 className="text-xl font-serif font-bold">Quiz — Level {level.id}</h3>
                     <span className="text-sm bg-primary-foreground/20 px-3 py-1 rounded-full">
                       {currentQuizIdx + 1} / {level.quizzes.length}
                     </span>
@@ -669,13 +390,13 @@ export function PizzaOriginStory() {
                 className="bg-card rounded-3xl shadow-elevated overflow-hidden"
               >
                 <div className="bg-gradient-to-r from-primary to-primary/80 p-6 text-primary-foreground text-center">
-                  <h3 className="text-2xl font-serif font-bold">✅ Level {level.id} Complete!</h3>
+                  <h3 className="text-2xl font-serif font-bold">Level {level.id} Complete!</h3>
                   <p className="text-primary-foreground/80">{level.title}</p>
                 </div>
 
                 <div className="p-8">
                   <div className="bg-primary/5 rounded-2xl p-6 mb-6">
-                    <h4 className="font-semibold text-foreground mb-2">📖 What You Learned:</h4>
+                    <h4 className="font-semibold text-foreground mb-2">What You Learned:</h4>
                     <p className="text-muted-foreground leading-relaxed">{level.feedback}</p>
                   </div>
 
@@ -687,7 +408,7 @@ export function PizzaOriginStory() {
 
                   <div className="text-center">
                     <button onClick={nextLevel} className="btn-hero-primary inline-flex items-center gap-2">
-                      {isLastLevel ? '🏆 See Final Results' : 'Next Level →'}
+                      {isLastLevel ? 'See Final Results' : 'Next Level →'}
                     </button>
                   </div>
                 </div>
@@ -709,7 +430,6 @@ export function PizzaOriginStory() {
                 </div>
 
                 <div className="p-8">
-                  {/* Level Breakdown */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                     {levels.map((l, i) => (
                       <div key={l.id} className="bg-muted rounded-xl p-3 text-center">
@@ -720,7 +440,6 @@ export function PizzaOriginStory() {
                     ))}
                   </div>
 
-                  {/* Progress */}
                   <div className="mb-6">
                     <div className="flex items-center justify-between text-sm text-muted-foreground mb-2">
                       <span>Progress</span>
@@ -735,7 +454,6 @@ export function PizzaOriginStory() {
                     </div>
                   </div>
 
-                  {/* Reward */}
                   {rank.coupon && (
                     <motion.div
                       initial={{ scale: 0.9, opacity: 0 }}
@@ -744,14 +462,14 @@ export function PizzaOriginStory() {
                       className="bg-gradient-to-r from-primary/10 to-accent/10 rounded-2xl p-6 mb-6 text-center"
                     >
                       <Gift className="w-8 h-8 text-primary mx-auto mb-2" />
-                      <p className="font-semibold text-foreground">🎁 Reward Unlocked!</p>
+                      <p className="font-semibold text-foreground">Reward Unlocked!</p>
                       <p className="text-2xl font-mono font-bold text-primary my-2">{rank.coupon}</p>
                       <p className="text-muted-foreground">{rank.discount}</p>
                       <button
                         onClick={() => {
                           navigator.clipboard?.writeText(rank.coupon);
                           toast({
-                            title: '🎁 Coupon Copied!',
+                            title: 'Coupon Copied!',
                             description: `Use code ${rank.coupon} for ${rank.discount}!`,
                           });
                         }}
@@ -762,21 +480,20 @@ export function PizzaOriginStory() {
                     </motion.div>
                   )}
 
-                  {/* Unlocks */}
                   <div className="grid grid-cols-3 gap-3 mb-6">
                     <div className="bg-muted rounded-xl p-3 text-center">
                       <Award className="w-5 h-5 text-primary mx-auto mb-1" />
-                      <p className="text-xs font-medium">🏅 Badge</p>
+                      <p className="text-xs font-medium">Badge</p>
                       <p className="text-xs text-muted-foreground">{rank.title}</p>
                     </div>
                     <div className="bg-muted rounded-xl p-3 text-center">
                       <Trophy className="w-5 h-5 text-primary mx-auto mb-1" />
-                      <p className="text-xs font-medium">🍕 Secret Menu</p>
+                      <p className="text-xs font-medium">Secret Menu</p>
                       <p className="text-xs text-muted-foreground">{score >= 56 ? 'Unlocked!' : 'Score 56+'}</p>
                     </div>
                     <div className="bg-muted rounded-xl p-3 text-center">
                       <Gift className="w-5 h-5 text-primary mx-auto mb-1" />
-                      <p className="text-xs font-medium">🎁 Discount</p>
+                      <p className="text-xs font-medium">Discount</p>
                       <p className="text-xs text-muted-foreground">{rank.coupon || 'Score 31+'}</p>
                     </div>
                   </div>

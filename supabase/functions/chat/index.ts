@@ -1,9 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const SYSTEM_PROMPT = `You are the friendly AI assistant for Pizza Nova, a premium 100% vegan Italian restaurant established in 1988.
@@ -14,7 +13,7 @@ CRITICAL BEHAVIOR RULES:
 3. Only recommend items that exist on our actual menu (listed below). Never invent menu items.
 4. When suggesting combos, only suggest after the user has explained their preference or need.
 5. Be warm, polite, and sweet. Use a caring, friendly tone like talking to a dear friend.
-6. Respond quickly and concisely (2-3 sentences max).
+6. Respond quickly and concisely (2-3 sentences max for simple queries, up to 4 for detailed ones).
 7. Use food emojis occasionally 🍕🧇🥤 but don't overdo it.
 
 Your personality:
@@ -47,7 +46,7 @@ COMPLETE MENU (only suggest items from this list):
 - Ice Cream: Classic Trio Scoop (₹99), Chocolate Sundae (₹149), Brownie Sundae (₹179), Double Berry Sundae (₹229)
 - Combos: Pizza Combo ₹399 (Pizza+Fries+Drink), Burger Combo ₹349 (Burger+Fries+Shake), Dessert Combo ₹299 (Waffle+Ice Cream), Family Combo ₹699 (2 Large Pizzas+4 Mocktails)
 - Coffee & Bakery: Espresso (₹99), Latte (₹129), Croissant (₹99)
-- Soft Drinks: Cola (₹49), Pepsi (₹49), Mountain Dew (₹49)
+- Soft Drinks: Cola (₹49-₹109), Pepsi (₹49-₹109), Mountain Dew (₹49-₹109)
 - Fries: French Fries (₹129), Peri-Peri Fries (₹149), Churros (₹169)
 - Nachos: Classic Cheese (₹199), Salsa (₹219), Loaded Vegan (₹249)
 
@@ -55,41 +54,19 @@ Remember: Answer first, suggest later. Be sweet and caring. Only menu items.`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    // Require authentication
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(
-        JSON.stringify({ error: "Authentication required. Please sign in to chat." }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    
-    if (claimsError || !claimsData?.claims) {
-      return new Response(
-        JSON.stringify({ error: "Invalid session. Please sign in again." }),
-        { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
     const { messages } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
+
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      throw new Error("AI service not configured");
     }
+
+    console.log("Chat request received with", messages?.length || 0, "messages");
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -103,38 +80,35 @@ serve(async (req) => {
           { role: "system", content: SYSTEM_PROMPT },
           ...messages,
         ],
-        max_tokens: 200,
+        max_tokens: 300,
       }),
     });
 
     if (!response.ok) {
+      console.error("AI API error:", response.status);
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "I'm a bit busy right now! Please try again in a moment. 🍕" }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: "Service temporarily unavailable. Please try again later." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      const errorText = await response.text();
       throw new Error("AI service error");
     }
 
     const data = await response.json();
     const aiMessage = data.choices?.[0]?.message?.content || "I'm here to help! What would you like to know about our menu? 🍕";
 
+    console.log("Chat response sent successfully");
+
     return new Response(
       JSON.stringify({ message: aiMessage }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
+    console.error("Chat function error:", error);
     return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Something went wrong. Please try again!" 
+      JSON.stringify({
+        error: "Sorry, I'm having a little trouble right now. Please try again! 🍕"
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );

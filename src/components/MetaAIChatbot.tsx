@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles, LogIn } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
-import type { Session } from '@supabase/supabase-js';
 
 interface Message {
   id: string;
@@ -12,7 +11,6 @@ interface Message {
 
 export function MetaAIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [session, setSession] = useState<Session | null>(null);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -23,17 +21,6 @@ export function MetaAIChatbot() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Track auth state
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -106,7 +93,6 @@ export function MetaAIChatbot() {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Backdrop for mobile */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -115,7 +101,6 @@ export function MetaAIChatbot() {
               className="fixed inset-0 bg-foreground/30 backdrop-blur-sm z-40 md:hidden"
             />
 
-            {/* Sidebar */}
             <motion.div
               initial={{ x: -400, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
@@ -182,43 +167,28 @@ export function MetaAIChatbot() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input */}
+              {/* Input - Always visible, no auth required */}
               <div className="p-4 border-t border-border bg-card">
-                {session ? (
-                  <>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-                        placeholder="Ask about our menu..."
-                        className="flex-1 px-4 py-3 rounded-full border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
-                      />
-                      <button
-                        onClick={handleSend}
-                        disabled={!input.trim() || isLoading}
-                        className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50"
-                      >
-                        <Send className="w-5 h-5" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center mt-2">
-                      Powered by Meta AI • Pizza Nova
-                    </p>
-                  </>
-                ) : (
-                  <div className="text-center py-2">
-                    <p className="text-sm text-muted-foreground mb-3">Sign in to chat with our AI assistant</p>
-                    <a
-                      href="/auth"
-                      className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-full text-sm font-semibold hover:bg-primary/90 transition-colors"
-                    >
-                      <LogIn className="w-4 h-4" />
-                      Sign In to Chat
-                    </a>
-                  </div>
-                )}
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                    placeholder="Ask about our menu..."
+                    className="flex-1 px-4 py-3 rounded-full border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none text-sm"
+                  />
+                  <button
+                    onClick={handleSend}
+                    disabled={!input.trim() || isLoading}
+                    className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 transition-colors disabled:opacity-50"
+                  >
+                    <Send className="w-5 h-5" />
+                  </button>
+                </div>
+                <p className="text-xs text-muted-foreground text-center mt-2">
+                  Powered by Meta AI • Pizza Nova
+                </p>
               </div>
             </motion.div>
           </>

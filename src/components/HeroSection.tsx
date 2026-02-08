@@ -32,10 +32,10 @@ export function HeroSection() {
 
             <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
               <a href="#menu" className="btn-hero-primary">
-                🔍 Find My Craving
+                Explore Menu
               </a>
               <a href="#customize" className="btn-hero-secondary">
-                🛠️ Create My Signature
+                Create My Signature
               </a>
               <a href="#order" className="btn-hero-outline">
                 Order Online

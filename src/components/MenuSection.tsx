@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MenuCard } from './MenuCard';
+import { DrinkCard } from './DrinkCard';
 
 // Pizza imports
 import pizzaMargherita from '@/assets/menu/pizza-margherita.jpg';
@@ -90,7 +91,6 @@ import frankieVeg from '@/assets/menu/frankie-veg.jpg';
 import frankiePaneer from '@/assets/menu/frankie-paneer.jpg';
 import frankieCheese from '@/assets/menu/frankie-cheese.jpg';
 import frankieSchezwan from '@/assets/menu/frankie-schezwan.jpg';
-
 
 // Drink imports
 import drinkCola from '@/assets/menu/drink-cola.jpg';
@@ -207,27 +207,78 @@ const menuItems: Record<string, Array<{ name: string; description: string; price
     { name: 'Schezwan Frankie', description: 'Indo-Chinese spicy schezwan sauce with crispy veggies', price: 129, image: frankieSchezwan, badge: 'Spicy' },
   ],
   drinks: [
-    { name: 'Coca Cola', description: 'Chilled classic cola (300ml)', price: 49, image: drinkCola },
-    { name: 'Pepsi', description: 'Refreshing Pepsi (300ml)', price: 49, image: drinkPepsi },
-    { name: 'Mountain Dew', description: 'Citrus blast energy drink (300ml)', price: 49, image: drinkDew },
+    { name: 'Coca Cola', description: 'Chilled classic cola – choose your size', price: 49, image: drinkCola },
+    { name: 'Pepsi', description: 'Refreshing Pepsi – choose your size', price: 49, image: drinkPepsi },
+    { name: 'Mountain Dew', description: 'Citrus blast energy drink – choose your size', price: 49, image: drinkDew },
   ],
 };
 
-export function MenuSection() {
+interface MenuSectionProps {
+  searchQuery?: string;
+}
+
+export function MenuSection({ searchQuery }: MenuSectionProps) {
   const [activeCategory, setActiveCategory] = useState('pizzas');
+
+  // Auto-switch category and filter based on voice search
+  useEffect(() => {
+    if (!searchQuery) return;
+    const query = searchQuery.toLowerCase();
+
+    // Find matching category
+    for (const [categoryId, items] of Object.entries(menuItems)) {
+      const hasMatch = items.some(item =>
+        item.name.toLowerCase().includes(query) ||
+        item.description.toLowerCase().includes(query)
+      );
+      if (hasMatch) {
+        setActiveCategory(categoryId);
+        return;
+      }
+    }
+
+    // Also check category names
+    const catMatch = categories.find(c =>
+      c.id.includes(query) || c.name.toLowerCase().includes(query)
+    );
+    if (catMatch) {
+      setActiveCategory(catMatch.id);
+    }
+  }, [searchQuery]);
+
+  // Filter items based on search query
+  const getFilteredItems = () => {
+    const items = menuItems[activeCategory] || [];
+    if (!searchQuery) return items;
+
+    const query = searchQuery.toLowerCase();
+    const filtered = items.filter(item =>
+      item.name.toLowerCase().includes(query) ||
+      item.description.toLowerCase().includes(query)
+    );
+    return filtered.length > 0 ? filtered : items;
+  };
+
+  const filteredItems = getFilteredItems();
+  const isDrinksCategory = activeCategory === 'drinks';
 
   return (
     <section id="menu" className="section-padding bg-background">
       <div className="container-main">
         {/* Header */}
         <div className="text-center mb-8 space-y-4">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
-            🔍 Find My Craving
+          <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground tracking-tight">
+            Our <span className="text-primary italic">Menu</span>
           </h2>
           <div className="divider-decorative" />
           <p className="text-muted-foreground max-w-2xl mx-auto">
             100% Vegan & Vegetarian • All prices in INR (₹)
           </p>
+          {searchQuery && (
+            <p className="text-sm text-primary font-medium">
+              Showing results for: "{searchQuery}"
+            </p>
+          )}
         </div>
 
         {/* Category Tabs */}
@@ -249,9 +300,13 @@ export function MenuSection() {
 
         {/* Menu Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {menuItems[activeCategory]?.map((item, index) => (
+          {filteredItems.map((item, index) => (
             <div key={item.name} style={{ animationDelay: `${index * 0.1}s` }} className="animate-fade-up">
-              <MenuCard {...item} />
+              {isDrinksCategory ? (
+                <DrinkCard {...item} />
+              ) : (
+                <MenuCard {...item} />
+              )}
             </div>
           ))}
         </div>

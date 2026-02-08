@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { WhyChooseUs } from '@/components/WhyChooseUs';
@@ -16,7 +17,10 @@ import { VoiceSearch } from '@/components/VoiceSearch';
 import { MetaAIChatbot } from '@/components/MetaAIChatbot';
 
 const Index = () => {
-  const handleVoiceSearch = () => {
+  const [voiceSearchQuery, setVoiceSearchQuery] = useState('');
+
+  const handleVoiceSearch = (query: string) => {
+    setVoiceSearchQuery(query);
     const menuSection = document.getElementById('menu');
     if (menuSection) {
       menuSection.scrollIntoView({ behavior: 'smooth' });
@@ -30,7 +34,7 @@ const Index = () => {
         <HeroSection />
         <WhyChooseUs />
         <RecentlyViewed />
-        <MenuSection />
+        <MenuSection searchQuery={voiceSearchQuery} />
         <PizzaOriginStory />
         <PizzaCustomizer />
         <CombosSection />

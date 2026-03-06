@@ -1,4 +1,5 @@
 import { Truck, CreditCard, Clock, Shield } from 'lucide-react';
+import deliveryScooty from '@/assets/delivery-scooty.png';
 
 const paymentMethods = [
   { name: 'PhonePe', icon: '📱' },
@@ -98,6 +99,11 @@ export function DeliverySection() {
               </div>
             </div>
             
+            {/* Delivery Scooty Illustration */}
+            <div className="flex justify-center py-4">
+              <img src={deliveryScooty} alt="Fast pizza delivery on scooty" className="h-32 md:h-40 w-auto object-contain" />
+            </div>
+
             <div className="bg-primary/5 rounded-xl p-4 border border-primary/20 mb-6">
               <p className="text-center text-sm text-foreground">
                 <span className="font-semibold">🌱 Eco-Friendly:</span> All our packaging is 100% biodegradable

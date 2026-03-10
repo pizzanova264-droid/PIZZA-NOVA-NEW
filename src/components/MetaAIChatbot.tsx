@@ -98,49 +98,7 @@ export const MetaAIChatbot = forwardRef<MetaAIChatbotHandle>(function MetaAIChat
     scrollToBottom();
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: input.trim()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInput('');
-    setIsLoading(true);
-
-    try {
-      const { data, error } = await supabase.functions.invoke('chat', {
-        body: {
-          messages: [...messages, userMessage].map(m => ({
-            role: m.role,
-            content: m.content
-          }))
-        }
-      });
-
-      if (error) throw error;
-
-      const aiMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.message || data.error || "I'm here to help! What would you like to know?"
-      };
-
-      setMessages(prev => [...prev, aiMessage]);
-    } catch {
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: "Sorry, I'm having trouble connecting right now. Please try again in a moment! 🍕"
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    }
-
-    setIsLoading(false);
-  };
+  const handleSend = () => sendMessage(input);
 
   return (
     <>

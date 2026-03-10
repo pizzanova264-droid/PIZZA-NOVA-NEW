@@ -25,7 +25,71 @@ export const MetaAIChatbot = forwardRef<MetaAIChatbotHandle>(function MetaAIChat
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pendingMessageRef = useRef<string | null>(null);
 
+  useImperativeHandle(ref, () => ({
+    openWithMessage: (message: string) => {
+      setIsOpen(true);
+      pendingMessageRef.current = message;
+    }
+  }));
+
+  // Handle pending voice message after opening
+  useEffect(() => {
+    if (isOpen && pendingMessageRef.current && !isLoading) {
+      const msg = pendingMessageRef.current;
+      pendingMessageRef.current = null;
+      setInput(msg);
+      // Auto-send after a short delay
+      setTimeout(() => {
+        sendMessage(msg);
+      }, 300);
+    }
+  }, [isOpen]);
+
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: text.trim()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('chat', {
+        body: {
+          messages: [...messages, userMessage].map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        }
+      });
+
+      if (error) throw error;
+
+      const aiMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.message || data.error || "I'm here to help! What would you like to know?"
+      };
+
+      setMessages(prev => [...prev, aiMessage]);
+    } catch {
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: "Sorry, I'm having trouble connecting right now. Please try again in a moment! 🍕"
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+
+    setIsLoading(false);
+  };
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };

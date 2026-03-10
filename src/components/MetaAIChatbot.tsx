@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +9,11 @@ interface Message {
   content: string;
 }
 
-export function MetaAIChatbot() {
+export interface MetaAIChatbotHandle {
+  openWithMessage: (message: string) => void;
+}
+
+export const MetaAIChatbot = forwardRef<MetaAIChatbotHandle>(function MetaAIChatbot(_, ref) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {

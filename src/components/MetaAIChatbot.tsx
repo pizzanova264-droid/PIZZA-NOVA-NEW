@@ -264,4 +264,4 @@ export const MetaAIChatbot = forwardRef<MetaAIChatbotHandle>(function MetaAIChat
       </AnimatePresence>
     </>
   );
-}
+});

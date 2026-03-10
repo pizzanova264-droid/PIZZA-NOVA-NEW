@@ -156,6 +156,10 @@ export default function Admin() {
   };
 
   const fetchData = async () => {
+    // Re-verify admin status before fetching sensitive data
+    const stillAdmin = await verifyAdminRole();
+    if (!stillAdmin) return;
+
     try {
       // Fetch all profiles (admin can see all due to RLS policy)
       const { data: profilesData, error: profilesError } = await supabase

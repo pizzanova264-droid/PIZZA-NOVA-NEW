@@ -52,6 +52,73 @@ export default function Admin() {
     }
   }, [user, authLoading, navigate]);
 
+  // Real-time monitoring of admin role changes
+  useEffect(() => {
+    if (!user || !isAdmin) return;
+
+    const channel = supabase
+      .channel('admin-role-monitor')
+      .on(
+        'postgres_changes',
+        {
+          event: 'DELETE',
+          schema: 'public',
+          table: 'user_roles',
+          filter: `user_id=eq.${user.id}`
+        },
+        () => {
+          setIsAdmin(false);
+          toast({
+            title: 'Access Revoked',
+            description: 'Your admin privileges have been removed.',
+            variant: 'destructive'
+          });
+          navigate('/');
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'user_roles',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          if (payload.new && (payload.new as any).role !== 'admin') {
+            setIsAdmin(false);
+            toast({
+              title: 'Access Revoked',
+              description: 'Your admin privileges have been removed.',
+              variant: 'destructive'
+            });
+            navigate('/');
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, isAdmin, navigate]);
+
+  const verifyAdminRole = async (): Promise<boolean> => {
+    if (!user) return false;
+    const { data } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+    if (!data) {
+      setIsAdmin(false);
+      navigate('/');
+      return false;
+    }
+    return true;
+  };
+
   const checkAdminStatus = async () => {
     try {
       const { data, error } = await supabase

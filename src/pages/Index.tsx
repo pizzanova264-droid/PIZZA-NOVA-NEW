@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { WhyChooseUs } from '@/components/WhyChooseUs';
@@ -18,6 +18,7 @@ import { MetaAIChatbot } from '@/components/MetaAIChatbot';
 
 const Index = () => {
   const [voiceSearchQuery, setVoiceSearchQuery] = useState('');
+  const chatbotRef = useRef<{ openWithMessage: (msg: string) => void }>(null);
 
   const handleVoiceSearch = (query: string) => {
     setVoiceSearchQuery(query);
@@ -25,6 +26,10 @@ const Index = () => {
     if (menuSection) {
       menuSection.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleChatMessage = (message: string) => {
+    chatbotRef.current?.openWithMessage(message);
   };
 
   return (
@@ -45,8 +50,8 @@ const Index = () => {
         <DeliverySection />
       </main>
       <Footer />
-      <VoiceSearch onSearch={handleVoiceSearch} />
-      <MetaAIChatbot />
+      <VoiceSearch onSearch={handleVoiceSearch} onChatMessage={handleChatMessage} />
+      <MetaAIChatbot ref={chatbotRef} />
     </div>
   );
 };

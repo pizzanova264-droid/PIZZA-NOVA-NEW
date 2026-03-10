@@ -5,9 +5,67 @@ import { toast } from '@/hooks/use-toast';
 
 interface VoiceSearchProps {
   onSearch: (query: string) => void;
+  onChatMessage?: (message: string) => void;
 }
 
-export function VoiceSearch({ onSearch }: VoiceSearchProps) {
+// Menu-related keywords for routing
+const MENU_KEYWORDS = [
+  'pizza', 'margherita', 'paneer tikka', 'farm fresh', 'vegan supreme', 'truffle',
+  'sandwich', 'grilled veg', 'pesto', 'club', 'cheese corn', 'mexican', 'caprese',
+  'burger', 'vegan cheese',
+  'fries', 'french fries', 'peri peri', 'churros',
+  'nachos', 'salsa', 'loaded',
+  'pasta', 'alfredo', 'arrabbiata', 'noodles', 'hakka', 'thai', 'lasagna',
+  'waffle', 'chocolate waffle', 'strawberry', 'nutella', 'oreo', 'maple', 'blueberry', 'caramel', 'red velvet',
+  'brownie', 'molten', 'banana nutella', 'triple chocolate',
+  'dessert', 'lava cake', 'pastry', 'cheesecake',
+  'ice cream', 'sundae', 'scoop',
+  'shake', 'milkshake', 'mango shake', 'oreo shake',
+  'mocktail', 'mojito', 'blue lagoon', 'watermelon', 'green apple', 'citrus',
+  'coffee', 'espresso', 'latte', 'croissant',
+  'cola', 'pepsi', 'mountain dew', 'soft drink',
+  'frankie', 'schezwan',
+  'combo', 'family combo', 'pizza combo', 'burger combo', 'dessert combo',
+  'taco', 'wrap', 'burrito', 'falafel',
+];
+
+// Question/chat indicators
+const CHAT_INDICATORS = [
+  'what', 'how', 'when', 'where', 'why', 'which', 'can', 'do', 'does', 'is', 'are',
+  'tell me', 'suggest', 'recommend', 'help', 'hi', 'hello', 'hey',
+  'open', 'close', 'hours', 'time', 'delivery', 'order', 'price', 'cost',
+  'vegan', 'vegetarian', 'allergi', 'ingredient',
+];
+
+function analyzeVoiceInput(text: string): { type: 'menu' | 'chat'; query: string } {
+  const lower = text.toLowerCase().trim();
+
+  // Check if it's a question or conversational query
+  const isQuestion = CHAT_INDICATORS.some(indicator => lower.startsWith(indicator) || lower.includes('?'));
+  
+  // Check if it contains a specific menu item
+  const matchedFood = MENU_KEYWORDS.find(keyword => lower.includes(keyword));
+
+  // If it's a short food name (1-3 words, no question words), go to menu
+  const wordCount = lower.split(/\s+/).length;
+  if (matchedFood && !isQuestion && wordCount <= 4) {
+    return { type: 'menu', query: matchedFood };
+  }
+
+  // If it's a question but mentions food, send to chat (AI can answer + we also filter menu)
+  if (isQuestion) {
+    return { type: 'chat', query: lower };
+  }
+
+  // Default: if food keyword found, go to menu; otherwise chat
+  if (matchedFood) {
+    return { type: 'menu', query: matchedFood };
+  }
+
+  return { type: 'chat', query: lower };
+}
+
+export function VoiceSearch({ onSearch, onChatMessage }: VoiceSearchProps) {
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const transcriptRef = useRef('');
@@ -65,11 +123,32 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
         setIsListening(false);
         const finalText = transcriptRef.current.trim();
         if (finalText) {
-          onSearch(finalText);
-          toast({
-            title: 'Searching for...',
-            description: `"${finalText}"`,
-          });
+          const analysis = analyzeVoiceInput(finalText);
+          
+          if (analysis.type === 'menu') {
+            // Direct to menu with the food item as search query
+            onSearch(analysis.query);
+            toast({
+              title: '🍕 Found it!',
+              description: `Showing "${analysis.query}" in our menu`,
+            });
+          } else {
+            // Send to chatbot for conversational response
+            if (onChatMessage) {
+              onChatMessage(finalText);
+              toast({
+                title: '💬 Asking Nova AI...',
+                description: `"${finalText}"`,
+              });
+            } else {
+              // Fallback: search menu anyway
+              onSearch(finalText);
+              toast({
+                title: 'Searching for...',
+                description: `"${finalText}"`,
+              });
+            }
+          }
         }
       };
 
@@ -161,7 +240,7 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
 
               <div>
                 <h2 className="text-2xl font-serif font-bold text-foreground">Talk to Nova</h2>
-                <p className="text-muted-foreground mt-2">Say the dish you're looking for</p>
+                <p className="text-muted-foreground mt-2">Say a dish name or ask a question</p>
               </div>
 
               {transcript && (
@@ -171,7 +250,7 @@ export function VoiceSearch({ onSearch }: VoiceSearchProps) {
               )}
 
               <p className="text-sm text-muted-foreground">
-                Try saying "pizza", "waffle", or "mocktail"
+                Try: "pizza" to browse, or "What pizzas do you have?" to ask Nova
               </p>
 
               <button

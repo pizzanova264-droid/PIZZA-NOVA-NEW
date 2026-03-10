@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { MessageCircle, X, Send, Bot, User, Loader2, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,7 +9,11 @@ interface Message {
   content: string;
 }
 
-export function MetaAIChatbot() {
+export interface MetaAIChatbotHandle {
+  openWithMessage: (message: string) => void;
+}
+
+export const MetaAIChatbot = forwardRef<MetaAIChatbotHandle>(function MetaAIChatbot(_, ref) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -21,22 +25,35 @@ export function MetaAIChatbot() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pendingMessageRef = useRef<string | null>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useImperativeHandle(ref, () => ({
+    openWithMessage: (message: string) => {
+      setIsOpen(true);
+      pendingMessageRef.current = message;
+    }
+  }));
 
+  // Handle pending voice message after opening
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    if (isOpen && pendingMessageRef.current && !isLoading) {
+      const msg = pendingMessageRef.current;
+      pendingMessageRef.current = null;
+      setInput(msg);
+      // Auto-send after a short delay
+      setTimeout(() => {
+        sendMessage(msg);
+      }, 300);
+    }
+  }, [isOpen]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  const sendMessage = async (text: string) => {
+    if (!text.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
-      content: input.trim()
+      content: text.trim()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -73,6 +90,15 @@ export function MetaAIChatbot() {
 
     setIsLoading(false);
   };
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSend = () => sendMessage(input);
 
   return (
     <>
@@ -196,4 +222,4 @@ export function MetaAIChatbot() {
       </AnimatePresence>
     </>
   );
-}
+});

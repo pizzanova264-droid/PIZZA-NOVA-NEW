@@ -60,19 +60,8 @@ export default function Checkout() {
         .single();
 
       if (addressError) throw addressError;
-
-      // Pick a random delivery partner
-      const { data: partners } = await supabase
-        .from('delivery_partners' as any)
-        .select('*')
-        .eq('is_active', true);
-
-      let partnerId = null;
-      let partner = null;
-      if (partners && partners.length > 0) {
-        partner = partners[Math.floor(Math.random() * partners.length)];
-        partnerId = (partner as any).id;
-      }
+      // Assign delivery partner via secure RPC
+      const { data: partnerId } = await supabase.rpc('assign_random_delivery_partner' as any);
 
       // Create order
       const { data: orderData, error: orderError } = await supabase
@@ -83,13 +72,24 @@ export default function Checkout() {
           items: items as any,
           total_amount: totalPrice,
           status: 'confirmed',
-          delivery_partner_id: partnerId,
+          delivery_partner_id: partnerId || null,
           payment_method: paymentMethod,
         } as any)
         .select()
         .single();
 
       if (orderError) throw orderError;
+
+      // Now fetch delivery partner details (RLS allows since order exists)
+      let partner = null;
+      if (partnerId) {
+        const { data: partnerData } = await supabase
+          .from('delivery_partners' as any)
+          .select('*')
+          .eq('id', partnerId)
+          .single();
+        partner = partnerData;
+      }
 
       const fullAddress = [
         address,

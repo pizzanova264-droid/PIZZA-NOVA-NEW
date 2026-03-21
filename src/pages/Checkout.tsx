@@ -8,6 +8,8 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import logo from '@/assets/pizza-nova-logo.webp';
+import { DeliveryPartnerCard } from '@/components/DeliveryPartnerCard';
+import { OrderReceipt } from '@/components/OrderReceipt';
 
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart();
@@ -22,6 +24,8 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [loading, setLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [completedOrder, setCompletedOrder] = useState<any>(null);
+  const [assignedPartner, setAssignedPartner] = useState<any>(null);
 
   useEffect(() => {
     if (!user) {
@@ -56,34 +60,65 @@ export default function Checkout() {
         .single();
 
       if (addressError) throw addressError;
+      // Assign delivery partner via secure RPC
+      const { data: partnerId } = await supabase.rpc('assign_random_delivery_partner' as any);
 
       // Create order
-      const { error: orderError } = await supabase
+      const { data: orderData, error: orderError } = await supabase
         .from('orders')
         .insert({
           user_id: user!.id,
           address_id: addressData.id,
           items: items as any,
           total_amount: totalPrice,
-          status: 'confirmed'
-        } as any);
+          status: 'confirmed',
+          delivery_partner_id: partnerId || null,
+          payment_method: paymentMethod,
+        } as any)
+        .select()
+        .single();
 
       if (orderError) throw orderError;
+
+      // Now fetch delivery partner details (RLS allows since order exists)
+      let partner = null;
+      if (partnerId) {
+        const { data: partnerData } = await supabase
+          .from('delivery_partners' as any)
+          .select('*')
+          .eq('id', partnerId)
+          .single();
+        partner = partnerData;
+      }
+
+      const fullAddress = [
+        address,
+        floorNo && `Floor: ${floorNo}`,
+        block,
+        landmark && `Near ${landmark}`,
+      ].filter(Boolean).join(', ');
+
+      setCompletedOrder({
+        ...orderData,
+        items,
+        address: fullAddress,
+        delivery_partner: partner,
+        payment_method: paymentMethod,
+      });
+      setAssignedPartner(partner);
 
       clearCart();
       setOrderSuccess(true);
       
-      // Send notification
       addNotification({
         type: 'order',
         title: '🎉 Order Confirmed!',
         message: `Your order of ₹${totalPrice} has been confirmed and is being prepared with love!`,
       });
       
-      // Show success toast
       toast({ 
         title: '🎉 Order Placed Successfully!', 
-        description: 'Thank you for ordering from Pizza Nova!' 
+        description: partner ? `${(partner as any).name} will deliver your order!` : 'Thank you for ordering from Pizza Nova!'
       });
     } catch (error: any) {
       toast({ title: 'Error', description: error.message || 'Failed to place order', variant: 'destructive' });
@@ -92,55 +127,61 @@ export default function Checkout() {
     setLoading(false);
   };
 
-  if (orderSuccess) {
+  if (orderSuccess && completedOrder) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5 flex items-center justify-center p-4">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', damping: 20 }}
-          className="bg-card rounded-3xl shadow-elevated p-8 max-w-md w-full text-center space-y-6"
-        >
-          <motion.div 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', damping: 15 }}
-            className="w-24 h-24 mx-auto bg-primary/20 rounded-full flex items-center justify-center"
-          >
-            <CheckCircle className="w-12 h-12 text-primary" />
-          </motion.div>
-          
-          <img src={logo} alt="Pizza Nova" className="h-16 mx-auto" />
-          
+      <div className="min-h-screen bg-gradient-to-br from-primary/10 via-background to-primary/5 p-4">
+        <div className="max-w-lg mx-auto pt-8 space-y-6">
+          {/* Success Animation */}
           <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="text-center space-y-4"
           >
-            <h1 className="text-3xl font-serif font-bold text-foreground">Order Placed Successfully!</h1>
-            <p className="text-muted-foreground text-lg mt-4">
-              Thank you for ordering from Pizza Nova! 🍕
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              Your delicious vegan meal is being prepared with love and will be delivered soon.
-            </p>
+            <motion.div 
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring', damping: 15 }}
+              className="w-20 h-20 mx-auto bg-accent/20 rounded-full flex items-center justify-center"
+            >
+              <CheckCircle className="w-10 h-10 text-accent" />
+            </motion.div>
+            <h1 className="text-2xl font-serif font-bold text-foreground">Order Placed!</h1>
+            <p className="text-muted-foreground">Your order is being prepared 🍕</p>
           </motion.div>
 
-          <div className="pt-4 space-y-3">
+          {/* Delivery Partner */}
+          {assignedPartner && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+              <p className="text-sm font-medium text-muted-foreground mb-2">Your delivery partner</p>
+              <DeliveryPartnerCard partner={assignedPartner} />
+            </motion.div>
+          )}
+
+          {/* Receipt */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
+            <OrderReceipt
+              order={completedOrder}
+              userEmail={user?.email || undefined}
+              userPhone={user?.phone || undefined}
+            />
+          </motion.div>
+
+          {/* Actions */}
+          <div className="space-y-3 pb-8">
             <button
               onClick={() => navigate('/orders')}
               className="w-full btn-hero-primary"
             >
-              View Order History
+              Track Your Order
             </button>
             <button
               onClick={() => navigate('/')}
-              className="w-full py-3 text-primary font-semibold hover:underline"
+              className="w-full py-3 text-primary font-semibold hover:underline text-center"
             >
               Continue Shopping
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
     );
   }
@@ -187,51 +228,29 @@ export default function Checkout() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Floor No.
-                    </label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Floor No.</label>
                     <div className="relative">
                       <Layers className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <input
-                        type="text"
-                        value={floorNo}
-                        onChange={(e) => setFloorNo(e.target.value)}
-                        placeholder="e.g., 3rd"
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
-                      />
+                      <input type="text" value={floorNo} onChange={(e) => setFloorNo(e.target.value)} placeholder="e.g., 3rd"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20" />
                     </div>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
-                      Block / Tower
-                    </label>
+                    <label className="block text-sm font-medium text-foreground mb-2">Block / Tower</label>
                     <div className="relative">
                       <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <input
-                        type="text"
-                        value={block}
-                        onChange={(e) => setBlock(e.target.value)}
-                        placeholder="e.g., B Block"
-                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
-                      />
+                      <input type="text" value={block} onChange={(e) => setBlock(e.target.value)} placeholder="e.g., B Block"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20" />
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Nearby Landmark
-                  </label>
+                  <label className="block text-sm font-medium text-foreground mb-2">Nearby Landmark</label>
                   <div className="relative">
                     <Navigation className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <input
-                      type="text"
-                      value={landmark}
-                      onChange={(e) => setLandmark(e.target.value)}
-                      placeholder="e.g., Near Central Mall"
-                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20"
-                    />
+                    <input type="text" value={landmark} onChange={(e) => setLandmark(e.target.value)} placeholder="e.g., Near Central Mall"
+                      className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-background focus:border-primary focus:ring-2 focus:ring-primary/20" />
                   </div>
                 </div>
               </div>
@@ -243,7 +262,6 @@ export default function Checkout() {
                 <CreditCard className="w-5 h-5 text-primary" />
                 Payment Method
               </h2>
-
               <div className="grid grid-cols-2 gap-3">
                 {[
                   { id: 'cod', name: 'Cash on Delivery', icon: Banknote, color: 'text-primary' },
@@ -272,15 +290,10 @@ export default function Checkout() {
           <div>
             <div className="bg-card rounded-2xl p-6 shadow-medium sticky top-24">
               <h2 className="text-xl font-serif font-bold mb-6">Order Summary</h2>
-
               <div className="space-y-4 max-h-64 overflow-y-auto mb-6">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-3">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-16 h-16 rounded-lg object-cover"
-                    />
+                    <img src={item.image} alt={item.name} className="w-16 h-16 rounded-lg object-cover" />
                     <div className="flex-1">
                       <h3 className="font-medium text-sm">{item.name}</h3>
                       <p className="text-muted-foreground text-sm">Qty: {item.quantity}</p>
@@ -289,7 +302,6 @@ export default function Checkout() {
                   </div>
                 ))}
               </div>
-
               <div className="border-t border-border pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
@@ -304,7 +316,6 @@ export default function Checkout() {
                   <span className="text-gold-accent">₹{totalPrice}</span>
                 </div>
               </div>
-
               <button
                 onClick={handlePlaceOrder}
                 disabled={loading || !address.trim()}

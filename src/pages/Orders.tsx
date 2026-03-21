@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, Clock, CheckCircle, MapPin, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Package, Clock, CheckCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { OrderTracking } from '@/components/OrderTracking';
+import { DeliveryPartnerCard } from '@/components/DeliveryPartnerCard';
+import { OrderReceipt } from '@/components/OrderReceipt';
 import logo from '@/assets/pizza-nova-logo.webp';
 
 interface Order {
@@ -13,12 +15,23 @@ interface Order {
   total_amount: number;
   status: string;
   created_at: string;
+  payment_method?: string;
+  delivery_partner_id?: string;
   addresses?: {
     address_line: string;
     floor_no: string;
     block: string;
     landmark: string;
   };
+  delivery_partners?: {
+    id: string;
+    name: string;
+    phone: string;
+    vehicle_type: string;
+    vehicle_number: string | null;
+    rating: number | null;
+    photo_url: string | null;
+  } | null;
 }
 
 export default function Orders() {
@@ -38,7 +51,6 @@ export default function Orders() {
     if (user) {
       fetchOrders();
       
-      // Set up realtime subscription for order updates
       const channel = supabase
         .channel('order-updates')
         .on(
@@ -73,8 +85,17 @@ export default function Orders() {
           floor_no,
           block,
           landmark
+        ),
+        delivery_partners (
+          id,
+          name,
+          phone,
+          vehicle_type,
+          vehicle_number,
+          rating,
+          photo_url
         )
-      `)
+      ` as any)
       .eq('user_id', user!.id)
       .order('created_at', { ascending: false });
 
@@ -92,7 +113,7 @@ export default function Orders() {
       case 'confirmed':
         return <CheckCircle className="w-5 h-5 text-accent" />;
       case 'preparing':
-        return <RefreshCw className="w-5 h-5 text-gold animate-spin" />;
+        return <RefreshCw className="w-5 h-5 text-accent animate-spin" />;
       case 'ready':
         return <Package className="w-5 h-5 text-primary" />;
       case 'out_for_delivery':
@@ -119,11 +140,8 @@ export default function Orders() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      day: 'numeric', month: 'short', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
     });
   };
 
@@ -192,12 +210,8 @@ export default function Orders() {
                   
                   <div className="flex gap-2 overflow-x-auto pb-2">
                     {order.items.slice(0, 3).map((item: any, index: number) => (
-                      <img
-                        key={index}
-                        src={item.image}
-                        alt={item.name}
-                        className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                      />
+                      <img key={index} src={item.image} alt={item.name}
+                        className="w-12 h-12 rounded-lg object-cover flex-shrink-0" />
                     ))}
                     {order.items.length > 3 && (
                       <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center text-sm font-medium">
@@ -206,6 +220,18 @@ export default function Orders() {
                     )}
                   </div>
                   
+                  {/* Delivery partner mini info */}
+                  {order.delivery_partners && (
+                    <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                      <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-primary">
+                          {order.delivery_partners.name.charAt(0)}
+                        </span>
+                      </div>
+                      <span>{order.delivery_partners.name}</span>
+                    </div>
+                  )}
+                  
                   <p className="text-xs text-muted-foreground mt-2">
                     {formatDate(order.created_at)}
                   </p>
@@ -213,44 +239,43 @@ export default function Orders() {
               ))}
             </div>
 
-            {/* Order Tracking */}
-            <div className="lg:sticky lg:top-24 h-fit">
+            {/* Order Details */}
+            <div className="lg:sticky lg:top-24 h-fit space-y-6">
               {selectedOrder ? (
-                <div className="space-y-6">
+                <>
                   <OrderTracking
                     orderId={selectedOrder.id}
                     status={selectedOrder.status}
                     address={getFullAddress(selectedOrder.addresses)}
                   />
                   
-                  {/* Order Items */}
-                  <div className="bg-card rounded-2xl p-6 shadow-soft">
-                    <h3 className="text-lg font-serif font-bold mb-4">Order Items</h3>
-                    <div className="space-y-3">
-                      {selectedOrder.items.map((item: any, index: number) => (
-                        <div key={index} className="flex gap-3">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-14 h-14 rounded-lg object-cover"
-                          />
-                          <div className="flex-1">
-                            <h4 className="font-medium text-sm">{item.name}</h4>
-                            <p className="text-muted-foreground text-xs">Qty: {item.quantity}</p>
-                          </div>
-                          <p className="text-sm font-semibold">₹{item.price * item.quantity}</p>
-                        </div>
-                      ))}
+                  {/* Delivery Partner */}
+                  {selectedOrder.delivery_partners && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Delivery Partner</p>
+                      <DeliveryPartnerCard partner={selectedOrder.delivery_partners} />
                     </div>
-                    
-                    <div className="border-t border-border mt-4 pt-4">
-                      <div className="flex justify-between text-lg font-bold">
-                        <span>Total</span>
-                        <span className="text-primary">₹{selectedOrder.total_amount}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  )}
+
+                  {/* Receipt */}
+                  <OrderReceipt
+                    order={{
+                      id: selectedOrder.id,
+                      items: selectedOrder.items,
+                      total_amount: selectedOrder.total_amount,
+                      status: selectedOrder.status,
+                      created_at: selectedOrder.created_at,
+                      payment_method: selectedOrder.payment_method,
+                      delivery_partner: selectedOrder.delivery_partners ? {
+                        name: selectedOrder.delivery_partners.name,
+                        phone: selectedOrder.delivery_partners.phone,
+                      } : null,
+                      address: getFullAddress(selectedOrder.addresses),
+                    }}
+                    userEmail={user?.email || undefined}
+                    userPhone={user?.phone || undefined}
+                  />
+                </>
               ) : (
                 <div className="bg-card rounded-2xl p-8 shadow-soft text-center">
                   <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />

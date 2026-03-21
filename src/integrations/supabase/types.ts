@@ -47,12 +47,50 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_partners: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string
+          photo_url: string | null
+          rating: number | null
+          vehicle_number: string | null
+          vehicle_type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone: string
+          photo_url?: string | null
+          rating?: number | null
+          vehicle_number?: string | null
+          vehicle_type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string
+          photo_url?: string | null
+          rating?: number | null
+          vehicle_number?: string | null
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           address_id: string | null
           created_at: string
+          delivery_partner_id: string | null
           id: string
           items: Json
+          payment_method: string | null
           status: string
           total_amount: number
           user_id: string
@@ -60,8 +98,10 @@ export type Database = {
         Insert: {
           address_id?: string | null
           created_at?: string
+          delivery_partner_id?: string | null
           id?: string
           items: Json
+          payment_method?: string | null
           status?: string
           total_amount: number
           user_id: string
@@ -69,8 +109,10 @@ export type Database = {
         Update: {
           address_id?: string | null
           created_at?: string
+          delivery_partner_id?: string | null
           id?: string
           items?: Json
+          payment_method?: string | null
           status?: string
           total_amount?: number
           user_id?: string
@@ -81,6 +123,13 @@ export type Database = {
             columns: ["address_id"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_delivery_partner_id_fkey"
+            columns: ["delivery_partner_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_partners"
             referencedColumns: ["id"]
           },
         ]

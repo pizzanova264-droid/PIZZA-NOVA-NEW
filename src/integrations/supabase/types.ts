@@ -187,6 +187,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_random_delivery_partner: { Args: never; Returns: string }
       has_role:
         | {
             Args: { _role: Database["public"]["Enums"]["app_role"] }

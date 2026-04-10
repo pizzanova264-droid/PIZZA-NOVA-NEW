@@ -37,6 +37,7 @@ interface Order {
 
 export default function Orders() {
   const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const { addNotification } = useNotifications();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -139,16 +140,6 @@ export default function Orders() {
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      confirmed: 'Order Confirmed',
-      preparing: 'Being Prepared',
-      ready: 'Ready for Pickup',
-      out_for_delivery: 'Out for Delivery',
-      delivered: 'Delivered',
-    };
-    return labels[status] || status;
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {

@@ -75,9 +75,23 @@ export default function Orders() {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
+            const updated = payload.new as any;
             setOrders(prev => prev.map(o => 
-              o.id === payload.new.id ? { ...o, ...payload.new } : o
+              o.id === updated.id ? { ...o, ...updated } : o
             ));
+            // Update selected order too
+            setSelectedOrder(prev => prev?.id === updated.id ? { ...prev, ...updated } : prev);
+            
+            // Send notification for status change
+            const statusMessages: Record<string, { title: string; message: string }> = {
+              preparing: { title: '👨‍🍳 Your order is being prepared!', message: 'Our chefs are crafting your pizza with love.' },
+              out_for_delivery: { title: '🛵 Out for Delivery!', message: 'Your delivery partner is on the way!' },
+              delivered: { title: '✅ Order Delivered!', message: 'Enjoy your meal! Thank you for ordering from Pizza Nova.' },
+            };
+            const msg = statusMessages[updated.status];
+            if (msg) {
+              addNotification({ type: 'order', ...msg });
+            }
           }
         )
         .subscribe();

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, Clock, CheckCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { OrderTracking } from '@/components/OrderTracking';
 import { DeliveryPartnerCard } from '@/components/DeliveryPartnerCard';
@@ -36,10 +37,21 @@ interface Order {
 
 export default function Orders() {
   const { user, loading: authLoading } = useAuth();
-  const navigate = useNavigate();
+  const { addNotification } = useNotifications();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      confirmed: 'Order Confirmed',
+      preparing: 'Being Prepared',
+      ready: 'Ready for Pickup',
+      out_for_delivery: 'Out for Delivery',
+      delivered: 'Delivered',
+    };
+    return labels[status] || status;
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {

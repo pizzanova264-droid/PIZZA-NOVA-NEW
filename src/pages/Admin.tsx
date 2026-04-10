@@ -4,6 +4,7 @@ import { ArrowLeft, Users, ShoppingBag, DollarSign, TrendingUp, Search, RefreshC
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { AdminOrderManager } from '@/components/AdminOrderManager';
 import logo from '@/assets/pizza-nova-logo.webp';
 
 interface Profile {
@@ -369,51 +370,7 @@ export default function Admin() {
             </div>
           </div>
         ) : (
-          <div className="bg-card rounded-2xl border border-border overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-muted/50">
-                  <tr>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Order ID</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Amount</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Status</th>
-                    <th className="px-6 py-4 text-left text-sm font-medium text-muted-foreground">Date</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredOrders.map((order) => (
-                    <tr key={order.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="px-6 py-4 font-mono text-sm text-foreground">
-                        {order.id.slice(0, 8)}...
-                      </td>
-                      <td className="px-6 py-4 text-foreground font-medium">
-                        ₹{Number(order.total_amount).toLocaleString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          order.status === 'delivered' ? 'bg-green-500/10 text-green-500' :
-                          order.status === 'pending' ? 'bg-yellow-500/10 text-yellow-500' :
-                          'bg-blue-500/10 text-blue-500'
-                        }`}>
-                          {order.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-muted-foreground">
-                        {new Date(order.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredOrders.length === 0 && (
-                    <tr>
-                      <td colSpan={4} className="px-6 py-8 text-center text-muted-foreground">
-                        No orders found
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <AdminOrderManager orders={filteredOrders} onStatusUpdated={fetchData} />
         )}
       </main>
     </div>

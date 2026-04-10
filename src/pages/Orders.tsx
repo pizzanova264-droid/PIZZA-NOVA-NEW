@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, Clock, CheckCircle, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { useNotifications } from '@/hooks/useNotifications';
 import { supabase } from '@/integrations/supabase/client';
 import { OrderTracking } from '@/components/OrderTracking';
 import { DeliveryPartnerCard } from '@/components/DeliveryPartnerCard';
@@ -37,9 +38,21 @@ interface Order {
 export default function Orders() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { addNotification } = useNotifications();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const getStatusLabel = (status: string) => {
+    const labels: Record<string, string> = {
+      confirmed: 'Order Confirmed',
+      preparing: 'Being Prepared',
+      ready: 'Ready for Pickup',
+      out_for_delivery: 'Out for Delivery',
+      delivered: 'Delivered',
+    };
+    return labels[status] || status;
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -62,9 +75,23 @@ export default function Orders() {
             filter: `user_id=eq.${user.id}`,
           },
           (payload) => {
+            const updated = payload.new as any;
             setOrders(prev => prev.map(o => 
-              o.id === payload.new.id ? { ...o, ...payload.new } : o
+              o.id === updated.id ? { ...o, ...updated } : o
             ));
+            // Update selected order too
+            setSelectedOrder(prev => prev?.id === updated.id ? { ...prev, ...updated } : prev);
+            
+            // Send notification for status change
+            const statusMessages: Record<string, { title: string; message: string }> = {
+              preparing: { title: '👨‍🍳 Your order is being prepared!', message: 'Our chefs are crafting your pizza with love.' },
+              out_for_delivery: { title: '🛵 Out for Delivery!', message: 'Your delivery partner is on the way!' },
+              delivered: { title: '✅ Order Delivered!', message: 'Enjoy your meal! Thank you for ordering from Pizza Nova.' },
+            };
+            const msg = statusMessages[updated.status];
+            if (msg) {
+              addNotification({ type: 'order', ...msg });
+            }
           }
         )
         .subscribe();
@@ -127,16 +154,6 @@ export default function Orders() {
     }
   };
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      confirmed: 'Order Confirmed',
-      preparing: 'Being Prepared',
-      ready: 'Ready for Pickup',
-      out_for_delivery: 'Out for Delivery',
-      delivered: 'Delivered',
-    };
-    return labels[status] || status;
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {

@@ -289,8 +289,6 @@ export default function Orders() {
                       } : null,
                       address: getFullAddress(selectedOrder.addresses),
                     }}
-                    userEmail={user?.email || undefined}
-                    userPhone={user?.phone || undefined}
                   />
                 </>
               ) : (

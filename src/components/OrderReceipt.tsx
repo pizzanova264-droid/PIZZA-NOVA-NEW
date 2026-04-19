@@ -1,5 +1,6 @@
 import { Download } from 'lucide-react';
 import { motion } from 'framer-motion';
+import jsPDF from 'jspdf';
 import { toast } from '@/hooks/use-toast';
 import logo from '@/assets/pizza-nova-logo.webp';
 

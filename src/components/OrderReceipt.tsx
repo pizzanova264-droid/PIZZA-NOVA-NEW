@@ -45,13 +45,15 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
     }
     lines.push(``, `Thank you for ordering! 🙏`);
 
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
     a.download = `PizzaNova_Receipt_${order.id.slice(0, 8)}.txt`;
+    document.body.appendChild(a);
     a.click();
-    URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 100);
     toast({ title: 'Receipt Downloaded', description: 'Check your downloads folder.' });
   };
 

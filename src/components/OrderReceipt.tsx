@@ -1,5 +1,6 @@
 import { Download } from 'lucide-react';
 import { motion } from 'framer-motion';
+import jsPDF from 'jspdf';
 import { toast } from '@/hooks/use-toast';
 import logo from '@/assets/pizza-nova-logo.webp';
 
@@ -27,34 +28,110 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
     });
 
   const downloadReceipt = () => {
-    const lines = [
-      `🍕 Pizza Nova - Order Receipt`,
-      `Order #${order.id.slice(0, 8)}`,
-      `Date: ${formatDate(order.created_at)}`,
-      ``,
-      `Items:`,
-      ...order.items.map((i: any) => `• ${i.name} x${i.quantity} — ₹${i.price * i.quantity}`),
-      ``,
-      `Total: ₹${order.total_amount}`,
-      `Payment: ${getPaymentLabel(order.payment_method)}`,
-      `Status: ${order.status}`,
-    ];
-    if (order.address) lines.push(``, `📍 Delivery: ${order.address}`);
-    if (order.delivery_partner) {
-      lines.push(``, `🛵 Delivery Partner: ${order.delivery_partner.name}`, `📞 ${order.delivery_partner.phone}`);
-    }
-    lines.push(``, `Thank you for ordering! 🙏`);
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+    let y = 50;
 
-    const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `PizzaNova_Receipt_${order.id.slice(0, 8)}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 100);
-    toast({ title: 'Receipt Downloaded', description: 'Check your downloads folder.' });
+    // Brand header band
+    doc.setFillColor(211, 47, 47); // brand red
+    doc.rect(0, 0, pageW, 80, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.text('PIZZA NOVA', pageW / 2, 38, { align: 'center' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text('Crafted with Love • 100% Vegetarian', pageW / 2, 58, { align: 'center' });
+
+    y = 110;
+    doc.setTextColor(51, 51, 51);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.text('Order Receipt', 40, y);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    y += 18;
+    doc.text(`Order ID: #${order.id.slice(0, 8).toUpperCase()}`, 40, y);
+    y += 14;
+    doc.text(`Date: ${formatDate(order.created_at)}`, 40, y);
+    y += 14;
+    doc.text(`Status: ${order.status.replace(/_/g, ' ').toUpperCase()}`, 40, y);
+
+    // Items table header
+    y += 28;
+    doc.setDrawColor(220, 220, 220);
+    doc.line(40, y, pageW - 40, y);
+    y += 16;
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(51, 51, 51);
+    doc.setFontSize(11);
+    doc.text('Item', 40, y);
+    doc.text('Qty', pageW - 180, y, { align: 'right' });
+    doc.text('Price', pageW - 110, y, { align: 'right' });
+    doc.text('Total', pageW - 40, y, { align: 'right' });
+    y += 8;
+    doc.line(40, y, pageW - 40, y);
+    y += 16;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    order.items.forEach((i: any) => {
+      if (y > 720) { doc.addPage(); y = 50; }
+      const name = String(i.name).length > 40 ? String(i.name).slice(0, 38) + '…' : i.name;
+      doc.text(name, 40, y);
+      doc.text(String(i.quantity), pageW - 180, y, { align: 'right' });
+      doc.text(`Rs. ${i.price}`, pageW - 110, y, { align: 'right' });
+      doc.text(`Rs. ${i.price * i.quantity}`, pageW - 40, y, { align: 'right' });
+      y += 16;
+    });
+
+    // Totals
+    y += 8;
+    doc.line(40, y, pageW - 40, y);
+    y += 18;
+    doc.setFontSize(10);
+    doc.setTextColor(120, 120, 120);
+    doc.text('Delivery Fee', 40, y);
+    doc.setTextColor(247, 156, 66);
+    doc.text('FREE', pageW - 40, y, { align: 'right' });
+    y += 20;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(14);
+    doc.setTextColor(211, 47, 47);
+    doc.text('Total', 40, y);
+    doc.text(`Rs. ${order.total_amount}`, pageW - 40, y, { align: 'right' });
+
+    // Payment & delivery
+    y += 30;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(51, 51, 51);
+    doc.text(`Payment Method: ${getPaymentLabel(order.payment_method)}`, 40, y);
+
+    if (order.address) {
+      y += 18;
+      const addressLines = doc.splitTextToSize(`Delivery Address: ${order.address}`, pageW - 80);
+      doc.text(addressLines, 40, y);
+      y += addressLines.length * 14;
+    }
+    if (order.delivery_partner) {
+      y += 6;
+      doc.text(`Delivery Partner: ${order.delivery_partner.name}`, 40, y);
+      y += 14;
+      doc.text(`Contact: ${order.delivery_partner.phone}`, 40, y);
+    }
+
+    // Footer
+    doc.setDrawColor(220, 220, 220);
+    doc.line(40, 780, pageW - 40, 780);
+    doc.setFontSize(9);
+    doc.setTextColor(120, 120, 120);
+    doc.text('Thank you for ordering from Pizza Nova!', pageW / 2, 800, { align: 'center' });
+    doc.text('For support, contact us through the app.', pageW / 2, 814, { align: 'center' });
+
+    doc.save(`PizzaNova_Receipt_${order.id.slice(0, 8)}.pdf`);
+    toast({ title: 'Receipt Downloaded', description: 'Your PDF receipt is ready.' });
   };
 
   return (

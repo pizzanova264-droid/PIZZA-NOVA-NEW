@@ -20,6 +20,30 @@ interface OrderReceiptProps {
   };
 }
 
+let cachedLogoPng: string | null = null;
+const loadLogoAsPng = (): Promise<string | null> =>
+  new Promise((resolve) => {
+    if (cachedLogoPng) return resolve(cachedLogoPng);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(null);
+        ctx.drawImage(img, 0, 0);
+        cachedLogoPng = canvas.toDataURL('image/png');
+        resolve(cachedLogoPng);
+      } catch {
+        resolve(null);
+      }
+    };
+    img.onerror = () => resolve(null);
+    img.src = logo;
+  });
+
 export function OrderReceipt({ order }: OrderReceiptProps) {
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('en-IN', {
@@ -27,23 +51,34 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
       hour: '2-digit', minute: '2-digit',
     });
 
-  const downloadReceipt = () => {
+  const downloadReceipt = async () => {
     const doc = new jsPDF({ unit: 'pt', format: 'a4' });
     const pageW = doc.internal.pageSize.getWidth();
     let y = 50;
 
     // Brand header band
     doc.setFillColor(211, 47, 47); // brand red
-    doc.rect(0, 0, pageW, 80, 'F');
+    doc.rect(0, 0, pageW, 90, 'F');
+
+    // Embed logo to the left of the title
+    const logoData = await loadLogoAsPng();
+    if (logoData) {
+      try {
+        doc.addImage(logoData, 'PNG', pageW / 2 - 115, 20, 50, 50);
+      } catch {
+        // fall back to text-only header
+      }
+    }
+
     doc.setTextColor(255, 255, 255);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
-    doc.text('PIZZA NOVA', pageW / 2, 38, { align: 'center' });
+    doc.text('PIZZA NOVA', pageW / 2 - 55, 48);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
-    doc.text('Crafted with Love • 100% Vegetarian', pageW / 2, 58, { align: 'center' });
+    doc.text('Crafted with Love • 100% Vegetarian', pageW / 2 - 55, 65);
 
-    y = 110;
+    y = 120;
     doc.setTextColor(51, 51, 51);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(14);

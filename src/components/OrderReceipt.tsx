@@ -20,29 +20,34 @@ interface OrderReceiptProps {
   };
 }
 
-let cachedLogoPng: string | null = null;
-const loadLogoAsPng = (): Promise<string | null> =>
-  new Promise((resolve) => {
-    if (cachedLogoPng) return resolve(cachedLogoPng);
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.naturalWidth;
-        canvas.height = img.naturalHeight;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) return resolve(null);
-        ctx.drawImage(img, 0, 0);
-        cachedLogoPng = canvas.toDataURL('image/png');
-        resolve(cachedLogoPng);
-      } catch {
-        resolve(null);
-      }
+let cachedLogoPng: { dataUrl: string; w: number; h: number } | null = null;
+const loadLogoAsPng = async (): Promise<{ dataUrl: string; w: number; h: number } | null> => {
+  if (cachedLogoPng) return cachedLogoPng;
+  try {
+    // Fetch bundled asset as blob — avoids CORS/decoding races on direct img.src
+    const res = await fetch(logo);
+    const blob = await res.blob();
+    const bitmap = await createImageBitmap(blob);
+    const canvas = document.createElement('canvas');
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    // White background so any transparent areas render cleanly on the red header
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(bitmap, 0, 0);
+    cachedLogoPng = {
+      dataUrl: canvas.toDataURL('image/png'),
+      w: bitmap.width,
+      h: bitmap.height,
     };
-    img.onerror = () => resolve(null);
-    img.src = logo;
-  });
+    return cachedLogoPng;
+  } catch (e) {
+    console.error('Logo load failed', e);
+    return null;
+  }
+};
 
 export function OrderReceipt({ order }: OrderReceiptProps) {
   const formatDate = (d: string) =>
@@ -60,13 +65,15 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
     doc.setFillColor(211, 47, 47); // brand red
     doc.rect(0, 0, pageW, 90, 'F');
 
-    // Embed logo to the left of the title
+    // Embed logo to the left of the title — preserve aspect ratio
     const logoData = await loadLogoAsPng();
     if (logoData) {
       try {
-        doc.addImage(logoData, 'PNG', pageW / 2 - 115, 20, 50, 50);
-      } catch {
-        // fall back to text-only header
+        const targetH = 50;
+        const targetW = Math.min(60, (logoData.w / logoData.h) * targetH);
+        doc.addImage(logoData.dataUrl, 'PNG', pageW / 2 - 125, 20, targetW, targetH);
+      } catch (e) {
+        console.error('addImage failed', e);
       }
     }
 

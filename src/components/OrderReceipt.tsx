@@ -65,13 +65,15 @@ export function OrderReceipt({ order }: OrderReceiptProps) {
     doc.setFillColor(211, 47, 47); // brand red
     doc.rect(0, 0, pageW, 90, 'F');
 
-    // Embed logo to the left of the title
+    // Embed logo to the left of the title — preserve aspect ratio
     const logoData = await loadLogoAsPng();
     if (logoData) {
       try {
-        doc.addImage(logoData, 'PNG', pageW / 2 - 115, 20, 50, 50);
-      } catch {
-        // fall back to text-only header
+        const targetH = 50;
+        const targetW = Math.min(60, (logoData.w / logoData.h) * targetH);
+        doc.addImage(logoData.dataUrl, 'PNG', pageW / 2 - 125, 20, targetW, targetH);
+      } catch (e) {
+        console.error('addImage failed', e);
       }
     }
 

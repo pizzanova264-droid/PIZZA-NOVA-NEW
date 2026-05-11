@@ -70,41 +70,47 @@ export default function Auth() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setStatusMessage(null);
+    setShowResend(false);
 
     try {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast({ title: 'Error', description: 'Invalid email or password', variant: 'destructive' });
-          } else if (error.message.includes('Email not confirmed')) {
-            toast({ title: 'Error', description: 'Please verify your email before signing in', variant: 'destructive' });
+          const msg = error.message || '';
+          if (msg.includes('Invalid login credentials')) {
+            setStatusMessage({ type: 'error', text: 'Invalid email or password. Try again or reset your password.' });
+          } else if (msg.includes('Email not confirmed') || msg.toLowerCase().includes('not confirmed')) {
+            setStatusMessage({ type: 'info', text: 'Your email is not verified yet. Resend the verification email to continue.' });
+            setShowResend(true);
           } else {
-            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+            setStatusMessage({ type: 'error', text: msg });
           }
         } else {
+          setStatusMessage({ type: 'success', text: 'Signed in successfully. Redirecting…' });
           toast({ title: 'Welcome back!', description: 'Successfully signed in' });
           navigate('/');
         }
       } else {
         if (!fullName.trim()) {
-          toast({ title: 'Error', description: 'Please enter your full name', variant: 'destructive' });
+          setStatusMessage({ type: 'error', text: 'Please enter your full name' });
           setLoading(false);
           return;
         }
         const { error } = await signUp(email, password, fullName);
         if (error) {
-          if (error.message.includes('already registered')) {
-            toast({ title: 'Error', description: 'This email is already registered. Please sign in.', variant: 'destructive' });
+          if (error.message.includes('already registered') || error.message.toLowerCase().includes('already')) {
+            setStatusMessage({ type: 'info', text: 'This email is already registered. Try signing in instead.' });
           } else {
-            toast({ title: 'Error', description: error.message, variant: 'destructive' });
+            setStatusMessage({ type: 'error', text: error.message });
           }
         } else {
-          toast({ title: 'Success!', description: 'Please check your email to verify your account' });
+          setStatusMessage({ type: 'success', text: 'Account created! You can sign in right away.' });
+          toast({ title: 'Account created', description: 'You can now sign in immediately' });
         }
       }
     } catch (err) {
-      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
+      setStatusMessage({ type: 'error', text: 'Something went wrong. Please try again.' });
     }
 
     setLoading(false);

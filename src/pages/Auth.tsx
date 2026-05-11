@@ -13,8 +13,37 @@ export default function Auth() {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'info' | 'success' | 'error'; text: string } | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+
+  const handleResendVerification = async () => {
+    if (!email) {
+      toast({ title: 'Enter your email', description: 'Please type your email above first', variant: 'destructive' });
+      return;
+    }
+    setResending(true);
+    try {
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: `${window.location.origin}/` },
+      });
+      if (error) {
+        setStatusMessage({ type: 'error', text: error.message });
+        toast({ title: 'Could not resend', description: error.message, variant: 'destructive' });
+      } else {
+        setStatusMessage({ type: 'success', text: `Verification email sent to ${email}. Check your inbox (and spam folder).` });
+        toast({ title: 'Email sent', description: 'Verification email resent successfully' });
+      }
+    } catch {
+      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
+    }
+    setResending(false);
+  };
 
   useEffect(() => {
     if (user) {

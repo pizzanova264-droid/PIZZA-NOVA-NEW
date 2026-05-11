@@ -20,6 +20,7 @@ import Admin from "./pages/Admin";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import NotFound from "./pages/NotFound";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -41,9 +42,9 @@ const App = () => (
                     <Route path="/auth" element={<Auth />} />
                     <Route path="/forgot-password" element={<ForgotPassword />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/orders" element={<Orders />} />
-                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+                    <Route path="/orders" element={<ProtectedRoute><Orders /></ProtectedRoute>} />
+                    <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
                     <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                     <Route path="/terms-of-service" element={<TermsOfService />} />
                     <Route path="*" element={<NotFound />} />

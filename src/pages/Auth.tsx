@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { lovable } from '@/integrations/lovable/index';
 import logo from '@/assets/pizza-nova-logo.webp';
+
+const RESEND_COOLDOWN_SECONDS = 30;
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,10 +18,42 @@ export default function Auth() {
   const [resending, setResending] = useState(false);
   const [showResend, setShowResend] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'info' | 'success' | 'error'; text: string } | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const cooldownRef = useRef<number | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
+
+  // Show contextual reason from protected route redirects
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    const message = searchParams.get('message');
+    if (!reason && !message) return;
+    if (reason === 'unconfirmed') {
+      setStatusMessage({ type: 'info', text: message || 'Your email is not verified yet. Resend the verification email to continue.' });
+      setShowResend(true);
+      setIsLogin(true);
+    } else if (reason === 'signin_required') {
+      setStatusMessage({ type: 'info', text: message || 'Please sign in to continue.' });
+    } else if (message) {
+      setStatusMessage({ type: 'info', text: message });
+    }
+  }, [searchParams]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    cooldownRef.current = window.setInterval(() => {
+      setResendCooldown((s) => (s <= 1 ? 0 : s - 1));
+    }, 1000);
+    return () => {
+      if (cooldownRef.current) window.clearInterval(cooldownRef.current);
+    };
+  }, [resendCooldown]);
 
   const handleResendVerification = async () => {
+    if (resending || resendCooldown > 0) return;
     if (!email) {
       toast({ title: 'Enter your email', description: 'Please type your email above first', variant: 'destructive' });
       return;
@@ -38,6 +72,7 @@ export default function Auth() {
       } else {
         setStatusMessage({ type: 'success', text: `Verification email sent to ${email}. Check your inbox (and spam folder).` });
         toast({ title: 'Email sent', description: 'Verification email resent successfully' });
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
       }
     } catch {
       toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
@@ -47,22 +82,47 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate(redirectTo, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, redirectTo]);
+
+  const interpretOAuthError = (raw: string): string => {
+    const m = raw.toLowerCase();
+    if (m.includes('redirect') && (m.includes('uri') || m.includes('url'))) {
+      return 'Misconfigured redirect URL. The Google OAuth app does not allow this site. Contact support.';
+    }
+    if (m.includes('network') || m.includes('failed to fetch') || m.includes('timeout')) {
+      return 'Network issue reaching Google. Check your connection and try again.';
+    }
+    if (m.includes('account') && (m.includes('exist') || m.includes('conflict') || m.includes('linked'))) {
+      return 'An account with this email already exists with a different sign-in method. Try signing in with email/password instead.';
+    }
+    if (m.includes('popup') && m.includes('closed')) {
+      return 'Google sign-in window was closed before completing. Please try again.';
+    }
+    if (m.includes('access_denied') || m.includes('denied')) {
+      return 'Google sign-in was cancelled or denied. Please try again and approve the requested permissions.';
+    }
+    return raw || 'Google sign-in failed. Please try again.';
+  };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
+    setStatusMessage(null);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
-      if (result.error) {
-        toast({ title: 'Error', description: 'Google sign-in failed', variant: 'destructive' });
+      if (result?.error) {
+        const friendly = interpretOAuthError(result.error.message || String(result.error));
+        setStatusMessage({ type: 'error', text: friendly });
+        toast({ title: 'Google sign-in failed', description: friendly, variant: 'destructive' });
       }
-      if (result.redirected) return;
-    } catch {
-      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
+      if (result?.redirected) return;
+    } catch (err: any) {
+      const friendly = interpretOAuthError(err?.message || String(err));
+      setStatusMessage({ type: 'error', text: friendly });
+      toast({ title: 'Google sign-in failed', description: friendly, variant: 'destructive' });
     }
     setLoading(false);
   };
@@ -89,7 +149,7 @@ export default function Auth() {
         } else {
           setStatusMessage({ type: 'success', text: 'Signed in successfully. Redirecting…' });
           toast({ title: 'Welcome back!', description: 'Successfully signed in' });
-          navigate('/');
+          navigate(redirectTo, { replace: true });
         }
       } else {
         if (!fullName.trim()) {
@@ -239,10 +299,15 @@ export default function Auth() {
               <button
                 type="button"
                 onClick={handleResendVerification}
-                disabled={resending}
-                className="w-full py-3 rounded-xl border border-primary/40 text-primary hover:bg-primary/10 transition-colors font-medium disabled:opacity-50"
+                disabled={resending || resendCooldown > 0}
+                className="w-full py-3 rounded-xl border border-primary/40 text-primary hover:bg-primary/10 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {resending ? 'Sending…' : 'Resend verification email'}
+                {resending && <Loader2 className="w-4 h-4 animate-spin" />}
+                {resending
+                  ? 'Sending…'
+                  : resendCooldown > 0
+                  ? `Resend available in ${resendCooldown}s`
+                  : 'Resend verification email'}
               </button>
             )}
 

@@ -299,10 +299,15 @@ export default function Auth() {
               <button
                 type="button"
                 onClick={handleResendVerification}
-                disabled={resending}
-                className="w-full py-3 rounded-xl border border-primary/40 text-primary hover:bg-primary/10 transition-colors font-medium disabled:opacity-50"
+                disabled={resending || resendCooldown > 0}
+                className="w-full py-3 rounded-xl border border-primary/40 text-primary hover:bg-primary/10 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                {resending ? 'Sending…' : 'Resend verification email'}
+                {resending && <Loader2 className="w-4 h-4 animate-spin" />}
+                {resending
+                  ? 'Sending…'
+                  : resendCooldown > 0
+                  ? `Resend available in ${resendCooldown}s`
+                  : 'Resend verification email'}
               </button>
             )}
 

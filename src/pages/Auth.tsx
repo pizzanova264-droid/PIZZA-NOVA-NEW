@@ -53,6 +53,7 @@ export default function Auth() {
   }, [resendCooldown]);
 
   const handleResendVerification = async () => {
+    if (resending || resendCooldown > 0) return;
     if (!email) {
       toast({ title: 'Enter your email', description: 'Please type your email above first', variant: 'destructive' });
       return;
@@ -71,6 +72,7 @@ export default function Auth() {
       } else {
         setStatusMessage({ type: 'success', text: `Verification email sent to ${email}. Check your inbox (and spam folder).` });
         toast({ title: 'Email sent', description: 'Verification email resent successfully' });
+        setResendCooldown(RESEND_COOLDOWN_SECONDS);
       }
     } catch {
       toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
@@ -80,22 +82,47 @@ export default function Auth() {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate(redirectTo, { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, navigate, redirectTo]);
+
+  const interpretOAuthError = (raw: string): string => {
+    const m = raw.toLowerCase();
+    if (m.includes('redirect') && (m.includes('uri') || m.includes('url'))) {
+      return 'Misconfigured redirect URL. The Google OAuth app does not allow this site. Contact support.';
+    }
+    if (m.includes('network') || m.includes('failed to fetch') || m.includes('timeout')) {
+      return 'Network issue reaching Google. Check your connection and try again.';
+    }
+    if (m.includes('account') && (m.includes('exist') || m.includes('conflict') || m.includes('linked'))) {
+      return 'An account with this email already exists with a different sign-in method. Try signing in with email/password instead.';
+    }
+    if (m.includes('popup') && m.includes('closed')) {
+      return 'Google sign-in window was closed before completing. Please try again.';
+    }
+    if (m.includes('access_denied') || m.includes('denied')) {
+      return 'Google sign-in was cancelled or denied. Please try again and approve the requested permissions.';
+    }
+    return raw || 'Google sign-in failed. Please try again.';
+  };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
+    setStatusMessage(null);
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin,
       });
-      if (result.error) {
-        toast({ title: 'Error', description: 'Google sign-in failed', variant: 'destructive' });
+      if (result?.error) {
+        const friendly = interpretOAuthError(result.error.message || String(result.error));
+        setStatusMessage({ type: 'error', text: friendly });
+        toast({ title: 'Google sign-in failed', description: friendly, variant: 'destructive' });
       }
-      if (result.redirected) return;
-    } catch {
-      toast({ title: 'Error', description: 'Something went wrong', variant: 'destructive' });
+      if (result?.redirected) return;
+    } catch (err: any) {
+      const friendly = interpretOAuthError(err?.message || String(err));
+      setStatusMessage({ type: 'error', text: friendly });
+      toast({ title: 'Google sign-in failed', description: friendly, variant: 'destructive' });
     }
     setLoading(false);
   };

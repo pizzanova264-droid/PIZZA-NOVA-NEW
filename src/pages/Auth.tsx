@@ -221,6 +221,31 @@ export default function Auth() {
               </div>
             )}
 
+            {statusMessage && (
+              <div
+                className={`rounded-xl px-4 py-3 text-sm border ${
+                  statusMessage.type === 'success'
+                    ? 'bg-green-500/10 border-green-500/30 text-green-700 dark:text-green-400'
+                    : statusMessage.type === 'info'
+                    ? 'bg-primary/10 border-primary/30 text-primary'
+                    : 'bg-destructive/10 border-destructive/30 text-destructive'
+                }`}
+              >
+                {statusMessage.text}
+              </div>
+            )}
+
+            {showResend && isLogin && (
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resending}
+                className="w-full py-3 rounded-xl border border-primary/40 text-primary hover:bg-primary/10 transition-colors font-medium disabled:opacity-50"
+              >
+                {resending ? 'Sending…' : 'Resend verification email'}
+              </button>
+            )}
+
             <button
               type="submit"
               disabled={loading}

@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { lovable } from '@/integrations/lovable/index';
 import logo from '@/assets/pizza-nova-logo.webp';
+
+const RESEND_COOLDOWN_SECONDS = 30;
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,8 +18,39 @@ export default function Auth() {
   const [resending, setResending] = useState(false);
   const [showResend, setShowResend] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'info' | 'success' | 'error'; text: string } | null>(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const cooldownRef = useRef<number | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
+
+  // Show contextual reason from protected route redirects
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    const message = searchParams.get('message');
+    if (!reason && !message) return;
+    if (reason === 'unconfirmed') {
+      setStatusMessage({ type: 'info', text: message || 'Your email is not verified yet. Resend the verification email to continue.' });
+      setShowResend(true);
+      setIsLogin(true);
+    } else if (reason === 'signin_required') {
+      setStatusMessage({ type: 'info', text: message || 'Please sign in to continue.' });
+    } else if (message) {
+      setStatusMessage({ type: 'info', text: message });
+    }
+  }, [searchParams]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    cooldownRef.current = window.setInterval(() => {
+      setResendCooldown((s) => (s <= 1 ? 0 : s - 1));
+    }, 1000);
+    return () => {
+      if (cooldownRef.current) window.clearInterval(cooldownRef.current);
+    };
+  }, [resendCooldown]);
 
   const handleResendVerification = async () => {
     if (!email) {

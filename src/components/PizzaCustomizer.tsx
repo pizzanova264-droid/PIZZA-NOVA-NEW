@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Check } from 'lucide-react';
+import { useCart } from '@/hooks/useCart';
+import { toast } from '@/hooks/use-toast';
+import logo from '@/assets/pizza-nova-logo.webp';
 
 const sizes = [
   { size: '7"', price: 0, label: 'Small' },
@@ -50,6 +53,20 @@ export function PizzaCustomizer() {
   const [selectedSauce, setSelectedSauce] = useState(sauces[0]);
   const [selectedCheese, setSelectedCheese] = useState(cheeses[0]);
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
+  const { addToCart, setIsCartOpen } = useCart();
+
+  const handleAddToCart = () => {
+    const toppingsLabel = selectedToppings.length ? ` + ${selectedToppings.join(', ')}` : '';
+    const name = `Custom ${selectedSize.label} Pizza (${selectedCrust.name}, ${selectedSauce.name}, ${selectedCheese.name})${toppingsLabel}`;
+    addToCart({
+      id: `custom-${Date.now()}`,
+      name,
+      price: totalPrice,
+      image: logo,
+    });
+    toast({ title: 'Added to cart', description: 'Your custom pizza is in the cart.' });
+    setIsCartOpen(true);
+  };
 
   const toggleTopping = (toppingName: string) => {
     setSelectedToppings(prev =>
@@ -259,7 +276,7 @@ export function PizzaCustomizer() {
                 </div>
               </div>
 
-              <button className="w-full btn-hero-primary text-center">
+              <button onClick={handleAddToCart} className="w-full btn-hero-primary text-center">
                 Add to Cart
               </button>
             </div>

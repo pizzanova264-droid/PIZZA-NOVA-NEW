@@ -149,7 +149,7 @@ export default function Auth() {
         } else {
           setStatusMessage({ type: 'success', text: 'Signed in successfully. Redirecting…' });
           toast({ title: 'Welcome back!', description: 'Successfully signed in' });
-          navigate('/');
+          navigate(redirectTo, { replace: true });
         }
       } else {
         if (!fullName.trim()) {
